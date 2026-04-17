@@ -1,0 +1,279 @@
+[15-Jan-2026 21:04:57 UTC] PHP Warning:  Undefined variable $user in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/fms/create_process.php on line 6
+[15-Jan-2026 21:04:57 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/fms/create_process.php on line 6
+[16-Jan-2026 04:22:15 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'u597629147_tasks_db.fms_steps_instances' doesn't exist in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/fms/admin_fms_process_cards.php:11
+Stack trace:
+#0 /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/fms/admin_fms_process_cards.php(11): PDO->query()
+#1 {main}
+  thrown in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/fms/admin_fms_process_cards.php on line 11
+[16-Jan-2026 04:27:49 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'u597629147_tasks_db.fms_steps_instances' doesn't exist in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/fms/admin_fms_process_cards.php:11
+Stack trace:
+#0 /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/fms/admin_fms_process_cards.php(11): PDO->query()
+#1 {main}
+  thrown in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/fms/admin_fms_process_cards.php on line 11
+[16-Jan-2026 04:39:03 UTC] PHP Warning:  Undefined variable $user in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/list_form_fields.php on line 6
+[16-Jan-2026 04:39:03 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/list_form_fields.php on line 6
+[16-Jan-2026 04:45:43 UTC] PHP Warning:  Undefined variable $user in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/list_form_fields.php on line 6
+[16-Jan-2026 04:45:43 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/list_form_fields.php on line 6
+[16-Jan-2026 04:46:13 UTC] PHP Warning:  Undefined variable $user in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/list_form_fields.php on line 6
+[16-Jan-2026 04:46:13 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/list_form_fields.php on line 6
+[17-Jan-2026 04:41:52 UTC] PHP Warning:  Undefined global variable $_SESSION in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/submit_form.php on line 8
+[17-Jan-2026 04:41:52 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/submit_form.php on line 8
+[17-Jan-2026 04:41:52 UTC] PHP Warning:  Undefined array key "form_id" in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/submit_form.php on line 9
+[17-Jan-2026 04:41:52 UTC] PHP Warning:  Undefined array key "values" in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/submit_form.php on line 10
+[17-Jan-2026 04:41:52 UTC] PHP Warning:  Undefined variable $db in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/submit_form.php on line 12
+[17-Jan-2026 04:41:52 UTC] PHP Fatal error:  Uncaught Error: Call to a member function beginTransaction() on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/submit_form.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/submit_form.php on line 12
+[17-Jan-2026 04:44:39 UTC] PHP Warning:  Undefined global variable $_SESSION in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/submit_form.php on line 8
+[17-Jan-2026 04:44:39 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/submit_form.php on line 8
+[17-Jan-2026 04:44:39 UTC] PHP Warning:  Undefined array key "form_id" in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/submit_form.php on line 9
+[17-Jan-2026 04:44:39 UTC] PHP Warning:  Undefined array key "values" in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/submit_form.php on line 10
+[17-Jan-2026 04:44:39 UTC] PHP Warning:  Undefined variable $db in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/submit_form.php on line 12
+[17-Jan-2026 04:44:39 UTC] PHP Fatal error:  Uncaught Error: Call to a member function beginTransaction() on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/submit_form.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/submit_form.php on line 12
+[17-Jan-2026 05:18:37 UTC] PHP Warning:  Undefined global variable $_SESSION in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/submit_form.php on line 8
+[17-Jan-2026 05:18:38 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/submit_form.php on line 8
+[17-Jan-2026 05:18:38 UTC] PHP Warning:  Undefined array key "form_id" in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/submit_form.php on line 9
+[17-Jan-2026 05:18:38 UTC] PHP Warning:  Undefined array key "values" in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/submit_form.php on line 10
+[17-Jan-2026 05:18:38 UTC] PHP Warning:  Undefined variable $db in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/submit_form.php on line 12
+[17-Jan-2026 05:18:38 UTC] PHP Fatal error:  Uncaught Error: Call to a member function beginTransaction() on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/submit_form.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/submit_form.php on line 12
+[17-Jan-2026 05:21:11 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'u597629147_tasks_db.fms_steps_instances' doesn't exist in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/fms/admin_fms_process_cards.php:11
+Stack trace:
+#0 /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/fms/admin_fms_process_cards.php(11): PDO->query()
+#1 {main}
+  thrown in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/fms/admin_fms_process_cards.php on line 11
+[17-Jan-2026 05:21:53 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'u597629147_tasks_db.fms_steps_instances' doesn't exist in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/fms/admin_fms_process_cards.php:11
+Stack trace:
+#0 /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/fms/admin_fms_process_cards.php(11): PDO->query()
+#1 {main}
+  thrown in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/fms/admin_fms_process_cards.php on line 11
+[17-Jan-2026 05:22:47 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'u597629147_tasks_db.fms_steps_instances' doesn't exist in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/fms/admin_fms_process_cards.php:11
+Stack trace:
+#0 /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/fms/admin_fms_process_cards.php(11): PDO->query()
+#1 {main}
+  thrown in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/fms/admin_fms_process_cards.php on line 11
+[17-Jan-2026 05:23:54 UTC] PHP Warning:  Undefined global variable $_SESSION in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/submit_form.php on line 8
+[17-Jan-2026 05:23:54 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/submit_form.php on line 8
+[17-Jan-2026 05:23:54 UTC] PHP Warning:  Undefined array key "form_id" in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/submit_form.php on line 9
+[17-Jan-2026 05:23:54 UTC] PHP Warning:  Undefined array key "values" in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/submit_form.php on line 10
+[17-Jan-2026 05:23:54 UTC] PHP Warning:  Undefined variable $db in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/submit_form.php on line 12
+[17-Jan-2026 05:23:54 UTC] PHP Fatal error:  Uncaught Error: Call to a member function beginTransaction() on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/submit_form.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/submit_form.php on line 12
+[17-Jan-2026 19:18:32 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'field_label' in 'SELECT' in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/list_form_fields.php:19
+Stack trace:
+#0 /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/list_form_fields.php(19): PDOStatement->execute()
+#1 {main}
+  thrown in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/list_form_fields.php on line 19
+[17-Jan-2026 19:18:59 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'field_label' in 'SELECT' in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/list_form_fields.php:19
+Stack trace:
+#0 /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/list_form_fields.php(19): PDOStatement->execute()
+#1 {main}
+  thrown in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/list_form_fields.php on line 19
+[17-Jan-2026 20:10:23 UTC] PHP Warning:  Undefined variable $auth_user in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[17-Jan-2026 20:10:23 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[17-Jan-2026 20:10:23 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'f.title' in 'SELECT' in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php:23
+Stack trace:
+#0 /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php(23): PDOStatement->execute()
+#1 {main}
+  thrown in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 23
+[17-Jan-2026 20:20:09 UTC] PHP Warning:  Undefined global variable $_SESSION in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/submit_form.php on line 8
+[17-Jan-2026 20:20:09 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/submit_form.php on line 8
+[17-Jan-2026 20:20:09 UTC] PHP Warning:  Undefined array key "form_id" in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/submit_form.php on line 9
+[17-Jan-2026 20:20:09 UTC] PHP Warning:  Undefined array key "values" in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/submit_form.php on line 10
+[17-Jan-2026 20:20:09 UTC] PHP Warning:  Undefined variable $db in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/submit_form.php on line 12
+[17-Jan-2026 20:20:09 UTC] PHP Fatal error:  Uncaught Error: Call to a member function beginTransaction() on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/submit_form.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/submit_form.php on line 12
+[19-Jan-2026 04:35:07 UTC] PHP Warning:  Undefined variable $auth_user in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 04:35:07 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 04:44:15 UTC] PHP Warning:  Undefined variable $auth_user in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/submit_form.php on line 8
+[19-Jan-2026 04:44:15 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/submit_form.php on line 8
+[19-Jan-2026 04:45:51 UTC] PHP Warning:  Undefined variable $auth_user in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 04:45:51 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 04:45:58 UTC] PHP Warning:  Undefined variable $auth_user in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 04:45:58 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 04:46:01 UTC] PHP Warning:  Undefined variable $auth_user in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 04:46:01 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 04:46:24 UTC] PHP Warning:  Undefined variable $auth_user in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 04:46:24 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 04:51:38 UTC] PHP Warning:  Undefined variable $auth_user in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 04:51:38 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 04:51:48 UTC] PHP Warning:  Undefined variable $auth_user in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 04:51:48 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 04:54:00 UTC] PHP Warning:  Undefined variable $auth_user in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 04:54:00 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 05:03:06 UTC] PHP Warning:  Undefined variable $auth_user in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 05:03:06 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 05:08:08 UTC] PHP Warning:  Undefined variable $auth_user in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 05:08:08 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 05:09:59 UTC] PHP Warning:  Undefined variable $auth_user in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 05:09:59 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 05:10:04 UTC] PHP Warning:  Undefined variable $auth_user in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 05:10:04 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 05:10:48 UTC] PHP Warning:  Undefined variable $auth_user in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 05:10:48 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 05:35:14 UTC] PHP Warning:  Undefined variable $auth_user in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 05:35:14 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 08:21:21 UTC] PHP Warning:  Undefined variable $auth_user in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 08:21:21 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 08:21:23 UTC] PHP Warning:  Undefined variable $auth_user in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 08:21:23 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 08:21:38 UTC] PHP Warning:  Undefined variable $auth_user in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 08:21:38 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 08:21:46 UTC] PHP Warning:  Undefined variable $auth_user in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 08:21:46 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 08:22:30 UTC] PHP Warning:  Undefined variable $auth_user in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 08:22:30 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 08:22:33 UTC] PHP Warning:  Undefined variable $auth_user in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 08:22:33 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 08:24:21 UTC] PHP Warning:  Undefined variable $auth_user in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 08:24:21 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 08:24:23 UTC] PHP Warning:  Undefined variable $auth_user in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 08:24:23 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 08:24:35 UTC] PHP Warning:  Undefined variable $auth_user in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 08:24:35 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 08:24:44 UTC] PHP Warning:  Undefined variable $auth_user in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 08:24:44 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 08:25:04 UTC] PHP Warning:  Undefined variable $auth_user in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 08:25:04 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 08:25:19 UTC] PHP Warning:  Undefined variable $auth_user in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 08:25:19 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 08:25:44 UTC] PHP Warning:  Undefined variable $auth_user in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 08:25:44 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 08:25:57 UTC] PHP Warning:  Undefined variable $auth_user in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 08:25:57 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 08:32:42 UTC] PHP Warning:  Undefined variable $auth_user in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 08:32:42 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 18:37:33 UTC] PHP Warning:  Undefined variable $auth_user in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 18:37:33 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 18:40:07 UTC] PHP Warning:  Undefined variable $auth_user in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 18:40:07 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 18:40:34 UTC] PHP Warning:  Undefined variable $auth_user in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 18:40:34 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 18:40:55 UTC] PHP Warning:  Undefined variable $auth_user in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 18:40:55 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 18:46:24 UTC] PHP Warning:  Undefined variable $auth_user in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 18:46:24 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 18:46:51 UTC] PHP Warning:  Undefined variable $auth_user in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 18:46:51 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 18:47:13 UTC] PHP Warning:  Undefined variable $auth_user in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 18:47:13 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 18:49:05 UTC] PHP Warning:  Undefined variable $auth_user in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 18:49:05 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 18:51:49 UTC] PHP Warning:  Undefined variable $auth_user in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 18:51:49 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 18:51:49 UTC] PHP Warning:  Undefined variable $auth_user in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 25
+[19-Jan-2026 18:51:49 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 25
+[19-Jan-2026 18:51:53 UTC] PHP Warning:  Undefined variable $auth_user in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 18:51:53 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 18:51:53 UTC] PHP Warning:  Undefined variable $auth_user in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 25
+[19-Jan-2026 18:51:53 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 25
+[19-Jan-2026 18:53:55 UTC] PHP Warning:  Undefined variable $auth_user in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 18:53:55 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[19-Jan-2026 18:53:55 UTC] PHP Warning:  Undefined variable $auth_user in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 25
+[19-Jan-2026 18:53:55 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 25
+[19-Jan-2026 18:57:17 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'field_label' in 'SELECT' in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/list_form_fields.php:25
+Stack trace:
+#0 /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/list_form_fields.php(25): PDOStatement->execute()
+#1 {main}
+  thrown in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/list_form_fields.php on line 25
+[19-Jan-2026 18:57:23 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'field_label' in 'SELECT' in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/list_form_fields.php:25
+Stack trace:
+#0 /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/list_form_fields.php(25): PDOStatement->execute()
+#1 {main}
+  thrown in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/list_form_fields.php on line 25
+[19-Jan-2026 18:58:50 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'field_label' in 'SELECT' in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/list_form_fields.php:25
+Stack trace:
+#0 /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/list_form_fields.php(25): PDOStatement->execute()
+#1 {main}
+  thrown in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/list_form_fields.php on line 25
+[19-Jan-2026 18:58:55 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'field_label' in 'SELECT' in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/list_form_fields.php:25
+Stack trace:
+#0 /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/list_form_fields.php(25): PDOStatement->execute()
+#1 {main}
+  thrown in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/list_form_fields.php on line 25
+[20-Jan-2026 06:35:01 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'u597629147_tasks_db.fms_steps_instances' doesn't exist in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/fms/admin_fms_process_cards.php:11
+Stack trace:
+#0 /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/fms/admin_fms_process_cards.php(11): PDO->query()
+#1 {main}
+  thrown in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/fms/admin_fms_process_cards.php on line 11
+[20-Jan-2026 06:37:40 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'u597629147_tasks_db.fms_steps_instances' doesn't exist in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/fms/admin_fms_process_cards.php:11
+Stack trace:
+#0 /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/fms/admin_fms_process_cards.php(11): PDO->query()
+#1 {main}
+  thrown in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/fms/admin_fms_process_cards.php on line 11
+[20-Jan-2026 07:35:43 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[20-Jan-2026 07:35:45 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[20-Jan-2026 07:35:50 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[20-Jan-2026 07:36:10 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[20-Jan-2026 07:36:19 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[20-Jan-2026 07:36:32 UTC] PHP Warning:  Trying to access array offset on null in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/user_assigned_forms.php on line 7
+[20-Jan-2026 16:18:59 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'u597629147_tasks_db.fms_steps_instances' doesn't exist in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/fms/admin_fms_process_cards.php:11
+Stack trace:
+#0 /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/fms/admin_fms_process_cards.php(11): PDO->query()
+#1 {main}
+  thrown in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/fms/admin_fms_process_cards.php on line 11
+[21-Jan-2026 18:18:28 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'created_by' in 'INSERT INTO' in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/create_instance_from_submission.php:56
+Stack trace:
+#0 /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/create_instance_from_submission.php(56): PDOStatement->execute()
+#1 {main}
+  thrown in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/create_instance_from_submission.php on line 56
+[21-Jan-2026 18:20:48 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'created_by' in 'INSERT INTO' in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/create_instance_from_submission.php:56
+Stack trace:
+#0 /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/create_instance_from_submission.php(56): PDOStatement->execute()
+#1 {main}
+  thrown in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/create_instance_from_submission.php on line 56
+[21-Jan-2026 18:29:37 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'created_by' in 'INSERT INTO' in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/create_instance_from_submission.php:56
+Stack trace:
+#0 /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/create_instance_from_submission.php(56): PDOStatement->execute()
+#1 {main}
+  thrown in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/create_instance_from_submission.php on line 56
+[21-Jan-2026 18:30:03 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'created_by' in 'INSERT INTO' in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/create_instance_from_submission.php:56
+Stack trace:
+#0 /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/create_instance_from_submission.php(56): PDOStatement->execute()
+#1 {main}
+  thrown in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/create_instance_from_submission.php on line 56
+[21-Jan-2026 19:11:17 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'created_by' in 'INSERT INTO' in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/create_instance_from_submission.php:56
+Stack trace:
+#0 /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/create_instance_from_submission.php(56): PDOStatement->execute()
+#1 {main}
+  thrown in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/create_instance_from_submission.php on line 56
+[21-Jan-2026 19:11:37 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'created_by' in 'INSERT INTO' in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/create_instance_from_submission.php:56
+Stack trace:
+#0 /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/create_instance_from_submission.php(56): PDOStatement->execute()
+#1 {main}
+  thrown in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/create_instance_from_submission.php on line 56
+[21-Jan-2026 19:14:23 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'created_by' in 'INSERT INTO' in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/create_instance_from_submission.php:56
+Stack trace:
+#0 /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/create_instance_from_submission.php(56): PDOStatement->execute()
+#1 {main}
+  thrown in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/create_instance_from_submission.php on line 56
+[21-Jan-2026 19:18:14 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'created_by' in 'INSERT INTO' in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/create_instance_from_submission.php:56
+Stack trace:
+#0 /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/create_instance_from_submission.php(56): PDOStatement->execute()
+#1 {main}
+  thrown in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/create_instance_from_submission.php on line 56
+[21-Jan-2026 19:25:18 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'created_by' in 'INSERT INTO' in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/create_instance_from_submission.php:59
+Stack trace:
+#0 /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/create_instance_from_submission.php(59): PDOStatement->execute()
+#1 {main}
+  thrown in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/create_instance_from_submission.php on line 59
+[21-Jan-2026 19:27:16 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'created_by' in 'INSERT INTO' in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/create_instance_from_submission.php:59
+Stack trace:
+#0 /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/create_instance_from_submission.php(59): PDOStatement->execute()
+#1 {main}
+  thrown in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/create_instance_from_submission.php on line 59
+[21-Jan-2026 19:27:24 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'created_by' in 'INSERT INTO' in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/create_instance_from_submission.php:59
+Stack trace:
+#0 /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/create_instance_from_submission.php(59): PDOStatement->execute()
+#1 {main}
+  thrown in /home/u597629147/domains/indiangroupofschools.com/public_html/tasks-app/api/forms/create_instance_from_submission.php on line 59

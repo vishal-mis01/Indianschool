@@ -1,14 +1,16 @@
 {
   "expo": {
-    "name": "checklist-app",
+    "name": "IPS Tasks",
     "slug": "checklist-app",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/logo.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
+    "updates": {
+      "enabled": false
+    },
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/logo.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -17,13 +19,31 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/logo.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "package": "com.vishal36.checklistapp"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
-    }
+      "favicon": "./assets/favicon.png",
+      "publicPath": "/assets/",
+      "build": {
+        "babel": {
+          "include": [
+            "@expo/vector-icons"
+          ]
+        }
+      }
+    },
+    "assetBundlePatterns": [
+      "**/*",
+      "./node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/*.ttf"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "3067291b-1cb3-47ec-b6aa-2b41f9af807c"
+      }
+    },
+    "owner": "vishal36"
   }
 }

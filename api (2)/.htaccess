@@ -1,0 +1,26 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Handle OPTIONS requests
+    RewriteCond %{REQUEST_METHOD} ^OPTIONS$
+    RewriteRule ^(.*)$ - [R=200,L]
+</IfModule>
+
+<IfModule mod_headers.c>
+    # Allow from localhost and production domain
+    SetEnvIf Origin "^http://localhost(:[0-9]+)?$" AccessControlAllowOrigin=$0
+    SetEnvIf Origin "^https://indiangroupofschools\.com$" AccessControlAllowOrigin=$0
+
+    # If origin matches, set CORS headers
+    Header set Access-Control-Allow-Origin "%{AccessControlAllowOrigin}e" env=AccessControlAllowOrigin
+    Header set Access-Control-Allow-Credentials "true" env=AccessControlAllowOrigin
+    Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS" env=AccessControlAllowOrigin
+    Header set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With, Accept" env=AccessControlAllowOrigin
+    Header set Access-Control-Max-Age "86400" env=AccessControlAllowOrigin
+
+    # Always allow OPTIONS with 200 response
+    Header always set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+    Header always set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With, Accept"
+    Header always set Access-Control-Allow-Origin "*"
+    Header always set Access-Control-Max-Age "86400"
+</IfModule>

@@ -1,0 +1,1123 @@
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  useWindowDimensions,
+  FlatList,
+  TouchableOpacity,
+  Alert,
+  Modal,
+} from "react-native";
+import { Surface, Button, ProgressBar, Chip, TextInput } from "react-native-paper";
+import apiFetch from "./apiFetch";
+
+export default function UserLessonPlans() {
+  const { width } = useWindowDimensions();
+  const isMobile = width < 768;
+  const [view, setView] = useState("subjects"); // subjects | sections-with-chapters | sections | chapters | chapter-detail | my-chapters
+  const [previousView, setPreviousView] = useState("chapters"); // Track where we came from
+  const [userSubjects, setUserSubjects] = useState([]);
+  const [sections, setSections] = useState([]);
+  const [chapters, setChapters] = useState([]);
+  const [chapterDetail, setChapterDetail] = useState(null);
+  const [userChapters, setUserChapters] = useState([]);
+  const [selectedSubject, setSelectedSubject] = useState(null);
+  const [selectedSection, setSelectedSection] = useState(null);
+  const [selectedChapter, setSelectedChapter] = useState(null);
+  const [assignedChapters, setAssignedChapters] = useState([]);
+  const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
+  const [showAssignModal, setShowAssignModal] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [viewContext, setViewContext] = useState('browse'); // 'browse' or 'assigned'
+
+  useEffect(() => {
+    loadUserSubjects();
+    loadAssignedChapters();
+  }, []);
+
+  const loadUserSubjects = async () => {
+    setLoading(true);
+    try {
+      const data = await apiFetch("/classes/list_user_class_subjects.php", {
+        method: "GET",
+      });
+      if (Array.isArray(data)) {
+        setUserSubjects(data);
+      }
+    } catch (err) {
+      Alert.alert("Error", "Failed to load subjects");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadSections = async (subject = null) => {
+    const targetSubject = subject || selectedSubject;
+    setLoading(true);
+    console.log("💾 loadSections: Fetching sections for selectedSubject =", targetSubject);
+    try {
+      const data = await apiFetch(`/curriculum/list_sections.php?class_id=${targetSubject.class_id}&subject_id=${targetSubject.subject_id}`, {
+        method: "GET",
+      });
+      console.log("💾 loadSections: API response =", data);
+      console.log("💾 loadSections: Response type =", typeof data, "isArray =", Array.isArray(data));
+      if (Array.isArray(data)) {
+        console.log("💾 loadSections: Found", data.length, "sections");
+        if (data.length > 0) {
+          console.log("💾 loadSections: First section =", data[0]);
+        }
+        setSections(data);
+        setView("sections");
+      } else {
+        console.log("💾 loadSections: Response is not an array", data);
+        Alert.alert("Error", "Invalid response from server");
+      }
+    } catch (err) {
+      console.error("💾 loadSections ERROR:", err);
+      Alert.alert("Error", "Failed to load sections");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadSectionsWithChapters = async (subject = null) => {
+    const targetSubject = subject || selectedSubject;
+    setLoading(true);
+    console.log("💾 loadSectionsWithChapters: Fetching sections with chapters for selectedSubject =", targetSubject);
+    try {
+      // First load sections
+      const sectionsData = await apiFetch(`/curriculum/list_sections.php?class_id=${targetSubject.class_id}&subject_id=${targetSubject.subject_id}`, {
+        method: "GET",
+      });
+      
+      if (!Array.isArray(sectionsData)) {
+        throw new Error("Invalid sections response");
+      }
+
+      // For each section, load its chapters
+      const sectionsWithChapters = await Promise.all(
+        sectionsData.map(async (section) => {
+          try {
+            const chaptersData = await apiFetch(`/curriculum/list_chapters_by_section.php?class_id=${targetSubject.class_id}&subject_id=${targetSubject.subject_id}&section_type=${encodeURIComponent(section.section_type)}`, {
+              method: "GET",
+            });
+            return {
+              ...section,
+              chapters: Array.isArray(chaptersData) ? chaptersData : []
+            };
+          } catch (err) {
+            console.error(`Error loading chapters for section ${section.section_type}:`, err);
+            return {
+              ...section,
+              chapters: []
+            };
+          }
+        })
+      );
+
+      console.log("💾 loadSectionsWithChapters: Final data =", sectionsWithChapters);
+      setSections(sectionsWithChapters);
+      setView("sections-with-chapters");
+    } catch (err) {
+      console.error("💾 loadSectionsWithChapters ERROR:", err);
+      Alert.alert("Error", "Failed to load sections with chapters");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadChapters = async (section = null) => {
+    const targetSection = section || selectedSection;
+    setLoading(true);
+    console.log("💾 loadChapters: Fetching chapters for selectedSection =", targetSection);
+    try {
+      const data = await apiFetch(`/curriculum/list_chapters_by_section.php?class_id=${selectedSubject.class_id}&subject_id=${selectedSubject.subject_id}&section_type=${encodeURIComponent(targetSection.section_type)}`, {
+        method: "GET",
+      });
+      console.log("💾 loadChapters: API response =", data);
+      console.log("💾 loadChapters: Response type =", typeof data, "isArray =", Array.isArray(data));
+      if (Array.isArray(data)) {
+        console.log("💾 loadChapters: Found", data.length, "chapters");
+        if (data.length > 0) {
+          console.log("💾 loadChapters: First chapter =", data[0]);
+        }
+        setChapters(data);
+        setView("chapters");
+      } else {
+        console.log("💾 loadChapters: Response is not an array", data);
+        Alert.alert("Error", "Invalid response from server");
+      }
+    } catch (err) {
+      console.error("💾 loadChapters ERROR:", err);
+      Alert.alert("Error", "Failed to load chapters");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Load chapter detail with topics/subtopics and progress
+  const loadChapterDetail = async (chapterId) => {
+    setLoading(true);
+    try {
+      const data = await apiFetch(
+        `/curriculum/get_chapter_progress.php?class_id=${selectedSubject.class_id}&subject_id=${selectedSubject.subject_id}&chapter_no=${chapterId}`,
+        { method: "GET" }
+      );
+      console.log('💾 loadChapterDetail: API response', data);
+      
+      if (!data || typeof data !== 'object') {
+        throw new Error('Invalid chapter data');
+      }
+      
+      // Set both chapter and subject so mark complete works
+      setSelectedChapter(chapterId);
+      setSelectedSubject({ ...selectedSubject });
+      setChapterDetail(data);
+      setPreviousView(view); // Save current view before navigating to chapter-detail
+      setView("chapter-detail");
+    } catch (err) {
+      console.error('Error loading chapter:', err);
+      Alert.alert("Error", "Failed to load chapter details: " + (err.message || err));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadAssignedChapters = async () => {
+    try {
+      const data = await apiFetch("/curriculum/get_user_chapters.php", {
+        method: "GET",
+      });
+      console.log('📚 get_user_chapters response:', data, 'length:', Array.isArray(data) ? data.length : 'N/A');
+      if (Array.isArray(data) && data.length > 0) {
+        console.log('First chapter:', data[0]);
+      }
+      if (Array.isArray(data)) {
+        setUserChapters(data);
+        setAssignedChapters(data);
+      }
+    } catch (err) {
+      console.error("Error loading chapters:", err);
+    }
+  };
+
+  const handleAssignChapter = async () => {
+    if (!selectedChapter) {
+      Alert.alert("Error", "Chapter not selected");
+      return;
+    }
+    setLoading(true);
+    try {
+      const payload = {
+        class_subject_id: selectedSubject?.class_subject_id, // Use class_subject_id, not id
+        chapter_no: selectedChapter,
+        start_date: startDate,
+      };
+      console.log('Assigning chapter with payload:', payload);
+      const result = await apiFetch("/curriculum/assign_chapter.php", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
+      console.log('Assignment response:', result);
+      if (result.success) {
+        Alert.alert("Success", `Chapter assigned! (${result.rows_affected || 0} subtopics)`);
+        setShowAssignModal(false);
+        // Refresh assigned chapters
+        await loadAssignedChapters();
+        // Then navigate to My Chapters to show the newly assigned chapter
+        setView("my-chapters");
+      }
+    } catch (err) {
+      console.error('Assignment error:', err);
+      Alert.alert("Error", err.message || "Failed to assign chapter");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSelectSubject = (subject) => {
+    console.log("💾 handleSelectSubject: Selected subject =", subject);
+    console.log("💾 handleSelectSubject: subject.class_subject_id =", subject.class_subject_id);
+    console.log("💾 handleSelectSubject: subject.id =", subject.id);
+    setSelectedSubject(subject);
+    loadSectionsWithChapters(subject); // Load sections with their chapters
+  };
+
+  const handleSelectSection = (section) => {
+    console.log("💾 handleSelectSection: Selected section =", section);
+    setSelectedSection(section);
+    loadChapters(section); // Load chapters for this section
+  };
+
+  const handleSelectChapter = (chapter) => {
+    setViewContext('browse');
+    loadChapterDetail(chapter.chapter_no);
+  };
+
+  const handleSelectAssignedChapter = (chapter) => {
+    console.log('📚 handleSelectAssignedChapter: chapter =', chapter);
+    console.log('📚 chapter.class_subject_id =', chapter.class_subject_id);
+    setViewContext('assigned');
+    // Find the subject from userSubjects based on class_subject_id
+    const subject = userSubjects.find(s => s.class_subject_id === chapter.class_subject_id);
+    if (subject) {
+      setSelectedSubject(subject);
+    }
+    loadChapterDetail(chapter.chapter_no);
+  };
+
+  const markSubtopicComplete = async (topicName, subTopicName) => {
+    setLoading(true);
+    try {
+      const payload = {
+        class_subject_id: selectedSubject?.class_subject_id,
+        chapter_no: selectedChapter,
+        topic: topicName,
+        sub_topic: subTopicName,
+      };
+      console.log('💾 markSubtopicComplete: Payload =', payload);
+      const result = await apiFetch("/curriculum/complete_subtopic.php", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
+      if (result.success) {
+        Alert.alert("Success", "Subtopic marked complete");
+        loadChapterDetail(selectedChapter);
+        loadAssignedChapters();
+      }
+    } catch (err) {
+      Alert.alert("Error", err.message || "Failed to mark subtopic complete");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+
+
+  const handleMarkComplete = async (chapter) => {
+    setLoading(true);
+    try {
+      // Mark whole chapter as complete
+      const result = await apiFetch("/curriculum/complete_subtopic.php", {
+        method: "POST",
+        body: JSON.stringify({
+          class_subject_id: chapter.class_subject_id,
+          chapter_no: chapter.chapter_no,
+        }),
+      });
+      if (result.success) {
+        Alert.alert("Success", "Chapter marked as complete");
+        loadAssignedChapters();
+        // if currently viewing the same chapter, refresh detail
+        if (selectedChapter === chapter.chapter_no) {
+          loadChapterDetail(chapter.chapter_no);
+        }
+      }
+    } catch (err) {
+      Alert.alert("Error", err.message || "Failed to mark complete");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const renderSubjectsView = () => (
+    <View>
+      <View style={styles.tabBar}>
+        <TouchableOpacity 
+          style={[styles.tab, view === "subjects" && styles.activeTab]}
+          onPress={() => setView("subjects")}
+        >
+          <Text style={[styles.tabText, view === "subjects" && styles.activeTabText]}>
+            Browse
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={[styles.tab, view === "my-chapters" && styles.activeTab]}
+          onPress={() => setView("my-chapters")}
+        >
+          <Text style={[styles.tabText, view === "my-chapters" && styles.activeTabText]}>
+            My Chapters ({userChapters.length})
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {userSubjects.length === 0 ? (
+        <Surface style={styles.emptyState}>
+          <Text style={styles.emptyText}>No subjects assigned yet</Text>
+        </Surface>
+      ) : (
+        <FlatList
+          data={userSubjects}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              onPress={() => handleSelectSubject(item)}
+              style={styles.subjectCard}
+            >
+              <Surface style={styles.cardContent}>
+                <Text style={styles.cardTitle}>{item.subject_name}</Text>
+                <Text style={styles.cardSubtitle}>Class: {item.class_name}</Text>
+                <Button 
+                  mode="contained" 
+                  onPress={() => handleSelectSubject(item)}
+                  style={{ marginTop: 12 }}
+                >
+                  View Chapters
+                </Button>
+              </Surface>
+            </TouchableOpacity>
+          )}
+          keyExtractor={(item) => item.id.toString()}
+          scrollEnabled={false}
+        />
+      )}
+    </View>
+  );
+
+  const renderSectionsView = () => (
+    <View>
+      <Button 
+        mode="outlined" 
+        onPress={() => setView("subjects")}
+        style={styles.backButton}
+      >
+        ← Back to Subjects
+      </Button>
+
+      <Text style={styles.sectionTitle}>
+        {selectedSubject?.subject_name} - Sections
+      </Text>
+
+      {sections.length === 0 ? (
+        <Surface style={styles.emptyState}>
+          <Text style={styles.emptyText}>No sections available</Text>
+        </Surface>
+      ) : (
+        <FlatList
+          data={sections}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              onPress={() => handleSelectSection(item)}
+              style={styles.subjectCard}
+            >
+              <Surface style={styles.cardContent}>
+                <Text style={styles.cardTitle}>
+                  {item.section_type}
+                </Text>
+                <View style={styles.metaRow}>
+                  <Text style={styles.metaText}>
+                    📚 {item.chapter_count} chapters
+                  </Text>
+                  <Text style={styles.metaText}>
+                    📝 {item.total_subtopics} subtopics
+                  </Text>
+                  <Text style={styles.metaText}>
+                    ⏱️ {item.total_days} days
+                  </Text>
+                </View>
+              </Surface>
+            </TouchableOpacity>
+          )}
+          keyExtractor={(item, index) => index.toString()}
+          scrollEnabled={false}
+        />
+      )}
+    </View>
+  );
+
+  const renderSectionsWithChaptersView = () => (
+    <View>
+      <Button 
+        mode="outlined" 
+        onPress={() => setView("subjects")}
+        style={styles.backButton}
+      >
+        ← Back to Subjects
+      </Button>
+
+      <Text style={styles.sectionTitle}>
+        {selectedSubject?.subject_name} - Chapters by Section
+      </Text>
+
+      {sections.length === 0 ? (
+        <Surface style={styles.emptyState}>
+          <Text style={styles.emptyText}>No sections available</Text>
+        </Surface>
+      ) : (
+        <FlatList
+          data={sections}
+          renderItem={({ item }) => (
+            <View key={item.section_type} style={styles.sectionContainer}>
+              <Surface style={styles.sectionCard}>
+                <Text style={styles.sectionCardTitle}>
+                  {item.section_type}
+                </Text>
+                <View style={styles.metaRow}>
+                  <Text style={styles.metaText}>
+                    📚 {item.chapter_count} chapters
+                  </Text>
+                  <Text style={styles.metaText}>
+                    📝 {item.total_subtopics} subtopics
+                  </Text>
+                  <Text style={styles.metaText}>
+                    ⏱️ {item.total_days} days
+                  </Text>
+                </View>
+              </Surface>
+
+              {/* Chapters within this section */}
+              {item.chapters && item.chapters.length > 0 ? (
+                <View style={styles.chaptersContainer}>
+                  {item.chapters.map((chapter, index) => (
+                    <TouchableOpacity
+                      key={chapter.chapter_no}
+                      onPress={() => handleSelectChapter(chapter)}
+                      style={styles.chapterCard}
+                    >
+                      <Surface style={styles.cardContent}>
+                        <Text style={styles.cardTitle}>
+                          Chapter {chapter.chapter_no}: {chapter.chapter_name}
+                        </Text>
+                        <View style={styles.metaRow}>
+                          <Text style={styles.metaText}>
+                            📝 {chapter.total_subtopics} subtopics
+                          </Text>
+                          <Text style={styles.metaText}>
+                            ⏱️ {chapter.total_days} days
+                          </Text>
+                        </View>
+                      </Surface>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              ) : (
+                <Surface style={[styles.emptyState, styles.noChaptersCard]}>
+                  <Text style={styles.emptyText}>No chapters in this section</Text>
+                </Surface>
+              )}
+            </View>
+          )}
+          keyExtractor={(item, index) => index.toString()}
+          scrollEnabled={false}
+        />
+      )}
+    </View>
+  );
+
+  const renderChaptersView = () => (
+    <View>
+      <Button 
+        mode="outlined" 
+        onPress={() => setView("sections")}
+        style={styles.backButton}
+      >
+        ← Back to Sections
+      </Button>
+
+      <Text style={styles.sectionTitle}>
+        {selectedSection?.section_type} - Chapters
+      </Text>
+
+      {chapters.length === 0 ? (
+        <Surface style={styles.emptyState}>
+          <Text style={styles.emptyText}>No chapters available</Text>
+        </Surface>
+      ) : (
+        <FlatList
+          data={chapters}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              onPress={() => handleSelectChapter(item)}
+              style={styles.chapterCard}
+            >
+              <Surface style={styles.cardContent}>
+                <Text style={styles.cardTitle}>
+                  Chapter {item.chapter_no}: {item.chapter_name}
+                </Text>
+                <View style={styles.metaRow}>
+                  <Text style={styles.metaText}>
+                    📚 {item.total_subtopics} subtopics
+                  </Text>
+                  <Text style={styles.metaText}>
+                    ⏱️ {item.total_days} days
+                  </Text>
+                </View>
+              </Surface>
+            </TouchableOpacity>
+          )}
+          keyExtractor={(item, index) => index.toString()}
+          scrollEnabled={false}
+        />
+      )}
+    </View>
+  );
+
+  const renderChapterDetailView = () => (
+    <View>
+      <Button 
+        mode="outlined" 
+        onPress={() => setView(previousView)}
+        style={styles.backButton}
+      >
+        ← Back to Chapters
+      </Button>
+
+      {!chapterDetail ? (
+        <Text style={styles.emptyText}>Loading chapter details...</Text>
+      ) : chapterDetail.error ? (
+        <Surface style={styles.emptyState}>
+          <Text style={styles.emptyText}>Error: {chapterDetail.error}</Text>
+        </Surface>
+      ) : !chapterDetail.sections || !Array.isArray(chapterDetail.sections) || chapterDetail.sections.length === 0 ? (
+        <Surface style={styles.emptyState}>
+          <Text style={styles.emptyText}>No subtopics found for this chapter</Text>
+        </Surface>
+      ) : (
+        <View>
+          <Text style={styles.sectionTitle}>
+            Chapter {chapterDetail.chapter?.chapter_no}: {chapterDetail.chapter?.chapter_name}
+          </Text>
+
+          {/* Render each section as a simple list */}
+          {chapterDetail.sections.map(section => (
+            <View key={section.section_type} style={styles.sectionContainer}>
+              {section.section_type !== 'General' && (
+                <Text style={styles.sectionHeader}>{section.section_type}</Text>
+              )}
+
+              {/* Render topics and subtopics as a simple list */}
+              {section.topics.map(topic => (
+                <View key={topic.topic_name} style={styles.topicContainer}>
+                  <Text style={styles.topicTitle}>{topic.topic_name}</Text>
+                  
+                  {topic.subtopics.map((subtopic, idx) => (
+                    <View key={idx} style={styles.subtopicContainer}>
+                      <Text style={styles.subtopicText}>
+                        • {subtopic.sub_topic}
+                      </Text>
+                      
+                      {subtopic.activity && subtopic.activity.trim() !== "" && (
+                        <Text style={styles.activityText}>
+                          Activity: {subtopic.activity}
+                        </Text>
+                      )}
+                      
+                      <View style={styles.dateRow}>
+                        {subtopic.planned_date && (
+                          <Text style={styles.dateText}>
+                            📅 Planned: {subtopic.planned_date}
+                          </Text>
+                        )}
+                        {subtopic.completed_date && (
+                          <Text style={styles.dateText}>
+                            ✅ Completed: {subtopic.completed_date}
+                          </Text>
+                        )}
+                      </View>
+
+                      {/* Status/Action */}
+                      <View style={styles.statusContainer}>
+                        {viewContext === 'assigned' ? (
+                          subtopic.status === "completed" ? (
+                            <Text style={styles.completedLabel}>✅ Completed</Text>
+                          ) : (
+                            <Button
+                              mode="outlined"
+                              compact
+                              onPress={() => markSubtopicComplete(topic.topic_name, subtopic.sub_topic)}
+                              style={styles.doneButton}
+                            >
+                              Mark Done
+                            </Button>
+                          )
+                        ) : (
+                          subtopic.status === "completed" ? (
+                            <Text style={styles.completedLabel}>✅ Completed</Text>
+                          ) : (
+                            <Text style={styles.pendingLabel}>⏳ Not assigned</Text>
+                          )
+                        )}
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              ))}
+            </View>
+          ))}
+
+          {/* Only show Assign button when browsing, NOT when viewing assigned chapters */}
+          {viewContext === 'browse' && (
+            <Button 
+              mode="contained" 
+              onPress={() => setShowAssignModal(true)}
+              style={styles.assignButton}
+            >
+              Assign This Chapter
+            </Button>
+          )}
+        </View>
+      )}
+    </View>
+  );
+
+  const renderMyChaptersView = () => {
+    // Filter chapters by selected subject if one is selected
+    const filteredChapters = selectedSubject 
+      ? userChapters.filter(chapter => chapter.class_subject_id === selectedSubject.class_subject_id)
+      : userChapters;
+
+    return (
+      <View>
+        <View style={styles.tabBar}>
+          <TouchableOpacity 
+            style={[styles.tab, view === "subjects" && styles.activeTab]}
+            onPress={() => setView("subjects")}
+          >
+            <Text style={[styles.tabText, view === "subjects" && styles.activeTabText]}>
+              Browse
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={[styles.tab, view === "my-chapters" && styles.activeTab]}
+            onPress={() => setView("my-chapters")}
+          >
+            <Text style={[styles.tabText, view === "my-chapters" && styles.activeTabText]}>
+              My Chapters ({filteredChapters.length})
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {filteredChapters.length === 0 ? (
+          <Surface style={styles.emptyState}>
+            <Text style={styles.emptyText}>
+              {selectedSubject ? `No assigned chapters for ${selectedSubject.subject_name}` : 'No assigned chapters yet'}
+            </Text>
+          </Surface>
+        ) : (
+          <FlatList
+            data={filteredChapters}
+            renderItem={({ item }) => {
+              const progress = item.total_subtopics > 0 
+                ? (item.completed_subtopics / item.total_subtopics)
+                : 0;
+              return (
+                <TouchableOpacity onPress={() => handleSelectAssignedChapter(item)}>
+                  <Surface style={styles.chapterProgressCard}>
+                    <Text style={styles.cardTitle}>
+                      {item.chapter_name}
+                    </Text>
+                    <Text style={styles.cardSubtitle}>
+                      Chapter {item.chapter_no} | {item.class_name} - {item.subject_name}
+                    </Text>
+                    
+                    <View style={styles.progressContainer}>
+                      <ProgressBar 
+                        progress={progress} 
+                        style={styles.progressBar}
+                      />
+                      <Text style={styles.progressText}>
+                        {item.completed_subtopics}/{item.total_subtopics} subtopics
+                      </Text>
+                    </View>
+                  </Surface>
+                </TouchableOpacity>
+              );
+            }}
+            keyExtractor={(item) => item.progress_id.toString()}
+            scrollEnabled={false}
+          />
+        )}
+      </View>
+    );
+  };
+
+  const renderAssignModal = () => (
+    <Modal visible={showAssignModal} transparent animationType="fade">
+      <View style={styles.modalOverlay}>
+        <Surface style={styles.modalContent}>
+          <Text style={styles.modalTitle}>Assign Chapter</Text>
+          
+          <Text style={styles.modalLabel}>Start Date</Text>
+          <TextInput
+            value={startDate}
+            onChangeText={setStartDate}
+            placeholder="YYYY-MM-DD"
+            mode="outlined"
+            style={styles.modalInput}
+          />
+
+          <View style={styles.modalButtonsRow}>
+            <Button 
+              mode="contained" 
+              onPress={handleAssignChapter}
+              loading={loading}
+              style={{ flex: 1, marginRight: 8 }}
+            >
+              Confirm
+            </Button>
+            <Button 
+              mode="outlined" 
+              onPress={() => setShowAssignModal(false)}
+              style={{ flex: 1 }}
+            >
+              Cancel
+            </Button>
+          </View>
+        </Surface>
+      </View>
+    </Modal>
+  );
+
+  return (
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={{ padding: isMobile ? 0 : 16, paddingBottom: 120 }}
+    >
+      <Text style={styles.screenTitle}>My Lesson Plans</Text>
+
+      {view === "subjects" && renderSubjectsView()}
+      {view === "sections-with-chapters" && renderSectionsWithChaptersView()}
+      {view === "sections" && renderSectionsView()}
+      {view === "chapters" && renderChaptersView()}
+      {view === "chapter-detail" && renderChapterDetailView()}
+      {view === "my-chapters" && renderMyChaptersView()}
+
+      {renderAssignModal()}
+    </ScrollView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#f5f5f5",
+  },
+  screenTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    marginHorizontal: 8,
+    marginTop: 12,
+    marginBottom: 16,
+    color: "#1E293B",
+    fontFamily: "System",
+  },
+  tabBar: {
+    flexDirection: "row",
+    marginBottom: 16,
+    borderBottomWidth: 2,
+    borderBottomColor: "#E2E8F0",
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    alignItems: "center",
+    borderBottomWidth: 3,
+    borderBottomColor: "transparent",
+  },
+  activeTab: {
+    borderBottomColor: "#2196F3",
+    backgroundColor: "#E3F2FD",
+  },
+  tabText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#64748B",
+    fontFamily: "System",
+  },
+  activeTabText: {
+    color: "#2196F3",
+    fontFamily: "System",
+  },
+  backButton: {
+    marginBottom: 16,
+    marginHorizontal: 8,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    marginHorizontal: 8,
+    marginBottom: 12,
+    color: "#1E293B",
+    fontFamily: "System",
+  },
+  subjectCard: {
+    marginHorizontal: 8,
+    marginBottom: 12,
+  },
+  chapterCard: {
+    marginHorizontal: 8,
+    marginBottom: 12,
+  },
+  chapterProgressCard: {
+    marginHorizontal: 8,
+    marginBottom: 12,
+    padding: 16,
+    borderRadius: 8,
+    elevation: 2,
+    backgroundColor: "#FFFFFF",
+    borderLeftWidth: 4,
+    borderLeftColor: "#3B82F6",
+  },
+  cardContent: {
+    borderRadius: 8,
+    padding: 16,
+    backgroundColor: "#fff",
+    elevation: 2,
+  },
+  cardTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#1E293B",
+    fontFamily: "System",
+  },
+  cardSubtitle: {
+    fontSize: 13,
+    color: "#64748B",
+    marginTop: 4,
+    fontFamily: "System",
+  },
+  metaRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 12,
+  },
+  metaText: {
+    fontSize: 13,
+    color: "#475569",
+    fontWeight: "500",
+    fontFamily: "System",
+  },
+  topicSection: {
+    marginVertical: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 8,
+    backgroundColor: "#F8FAFC",
+    borderLeftWidth: 3,
+    borderLeftColor: "#2196F3",
+  },
+  subtopicItem: {
+    marginLeft: 12,
+    marginBottom: 8,
+    paddingVertical: 6,
+  },
+  /* table styles */
+  tableHeader: {
+    flexDirection: "row",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    backgroundColor: "#E3F2FD",
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: "#BBDEFB",
+  },
+  tableCell: {
+    flex: 1,
+    fontSize: 12,
+    color: "#475569",
+    flexWrap: "wrap",
+    minWidth: 80,
+    fontFamily: "System",
+  },
+  headerCell: {
+    fontWeight: "700",
+    color: "#1E293B",
+    fontFamily: "System",
+  },
+  subtopicRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    marginBottom: 6,
+    borderBottomWidth: 1,
+    borderColor: "#E2E8F0",
+  },
+  completedLabel: {
+    fontSize: 14,
+    color: "#16A34A",
+    fontWeight: "700",
+    fontFamily: "System",
+  },
+  pendingLabel: {
+    fontSize: 14,
+    color: "#F59E0B",
+    fontWeight: "700",
+    fontFamily: "System",
+  },
+  subtopicText: {
+    fontSize: 14,
+    lineHeight: 20,
+    color: "#475569",
+    fontWeight: "500",
+    fontFamily: "System",
+  },
+  lectureText: {
+    fontSize: 12,
+    color: "#94A3B8",
+    marginTop: 4,
+    fontFamily: "System",
+  },
+  assignButton: {
+    marginHorizontal: 8,
+    marginVertical: 16,
+  },
+  progressContainer: {
+    marginVertical: 12,
+  },
+  progressBar: {
+    height: 8,
+    borderRadius: 4,
+    marginBottom: 8,
+    backgroundColor: "#E2E8F0",
+  },
+  progressText: {
+    fontSize: 12,
+    color: "#64748B",
+    textAlign: "right",
+    fontFamily: "System",
+  },
+  markCompleteButton: {
+    marginTop: 12,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    borderRadius: 12,
+    padding: 24,
+    width: "85%",
+    backgroundColor: "#fff",
+    elevation: 8,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#1E293B",
+    marginBottom: 16,
+    fontFamily: "System",
+  },
+  modalLabel: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#475569",
+    marginBottom: 8,
+    fontFamily: "System",
+  },
+  modalInput: {
+    marginBottom: 20,
+    backgroundColor: "#F8FAFC",
+  },
+  modalButtonsRow: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  emptyState: {
+    padding: 32,
+    borderRadius: 8,
+    alignItems: "center",
+    elevation: 2,
+    marginHorizontal: 8,
+    backgroundColor: "#F8FAFC",
+  },
+  emptyText: {
+    textAlign: "center",
+    color: "#94A3B8",
+    fontSize: 14,
+    fontWeight: "500",
+    fontFamily: "System",
+  },
+  sectionCard: {
+    marginVertical: 12,
+    padding: 16,
+    borderRadius: 8,
+    backgroundColor: "#fff",
+    elevation: 2,
+  },
+  sectionCardTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#1E293B",
+    marginBottom: 12,
+    textTransform: "capitalize",
+    fontFamily: "System",
+  },
+  sectionContainer: {
+    marginBottom: 24,
+  },
+  chaptersContainer: {
+    marginLeft: 16,
+    marginTop: 8,
+  },
+  noChaptersCard: {
+    marginLeft: 16,
+    marginTop: 8,
+    marginBottom: 16,
+  },
+  /* New list format styles */
+  sectionHeader: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#1E293B",
+    marginBottom: 16,
+    textTransform: "capitalize",
+    fontFamily: "System",
+  },
+  topicContainer: {
+    marginBottom: 20,
+    padding: 16,
+    backgroundColor: "#F8FAFC",
+    borderRadius: 8,
+    borderLeftWidth: 4,
+    borderLeftColor: "#3B82F6",
+  },
+  topicTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#1E293B",
+    marginBottom: 12,
+    fontFamily: "System",
+  },
+  subtopicContainer: {
+    marginBottom: 12,
+    paddingLeft: 16,
+    borderLeftWidth: 2,
+    borderLeftColor: "#E2E8F0",
+    paddingBottom: 8,
+  },
+  subtopicText: {
+    fontSize: 14,
+    color: "#334155",
+    marginBottom: 4,
+    fontFamily: "System",
+    lineHeight: 20,
+  },
+  activityText: {
+    fontSize: 13,
+    color: "#64748B",
+    marginBottom: 6,
+    fontStyle: "italic",
+    fontFamily: "System",
+  },
+  dateRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginBottom: 8,
+    gap: 12,
+  },
+  dateText: {
+    fontSize: 12,
+    color: "#475569",
+    fontFamily: "System",
+  },
+  statusContainer: {
+    marginTop: 8,
+  },
+  doneButton: {
+    alignSelf: "flex-start",
+  },
