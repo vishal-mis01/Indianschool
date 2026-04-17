@@ -61,16 +61,10 @@ export default function UserLessonPlans() {
   // Function to calculate planned dates based on lecture sequence, skipping holidays and Sundays
   const calculatePlannedDates = async (chapterData) => {
     try {
-      // Fetch holidays from API - continue without holidays if endpoint fails
-      let holidayDates = [];
-      try {
-        const holidaysResponse = await apiFetch("/admin_get_holidays.php", { method: "GET" });
-        const holidays = holidaysResponse?.holidays || [];
-        holidayDates = holidays.map(h => h.holiday_date);
-      } catch (holidayError) {
-        console.warn("Could not fetch holidays, continuing without holiday dates:", holidayError);
-        // Continue without holidays
-      }
+      // Fetch holidays from API
+      const holidaysResponse = await apiFetch("/admin_get_holidays.php", { method: "GET" });
+      const holidays = holidaysResponse?.holidays || [];
+      const holidayDates = holidays.map(h => h.holiday_date);
 
       // Helper function to check if date is Sunday or holiday
       const isInvalidDate = (date) => {
@@ -950,10 +944,7 @@ const styles = StyleSheet.create({
     minWidth: 60,
     textAlign: "center",
   },
-  actionCol: {
-    flex: 1,
-    minWidth: 80,
-  },
+ 
 });
 
 
