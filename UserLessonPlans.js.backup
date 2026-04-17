@@ -1118,6 +1118,4 @@ const styles = StyleSheet.create({
   statusContainer: {
     marginTop: 8,
   },
-  doneButton: {
-    alignSelf: "flex-start",
-  },
+  
