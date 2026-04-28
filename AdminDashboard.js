@@ -1,21 +1,24 @@
 import React, { useState } from "react";
-import { View, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  LayoutAnimation,
+} from "react-native";
 import {
   Text,
   Button,
   Avatar,
   Surface,
-  Menu,
 } from "react-native-paper";
 
+// Screens
 import AdminCreateTaskScreen from "./AdminCreateTaskScreen";
 import AdminAssignTaskScreen from "./AdminAssignTaskScreen";
 import AdminHolidayScreen from "./AdminHolidayScreen";
 import AdminReportsScreen from "./AdminReportsScreen";
-
 import AdminFmsBuilder from "./AdminFmsBuilder";
 import AdminFmsView from "./AdminFmsView";
-
 import AdminFormBuilder from "./AdminFormBuilder";
 import FormResponsesViewer from "./FormResponsesViewer";
 import CreateUserScreen from "./CreateUserScreen";
@@ -27,22 +30,13 @@ import AdminSyllabusUploadScreen from "./AdminSyllabusUploadScreen";
 
 export default function AdminDashboard({ onLogout }) {
   const [active, setActive] = useState("tasks");
+  const [collapsed, setCollapsed] = useState(false);
   const [selectedFormId, setSelectedFormId] = useState(null);
 
-  // on web, react-native-paper inserts a backdrop div that captures clicks.
-  // inject global CSS to make it transparently non‑interactive.
-  React.useEffect(() => {
-    if (typeof document !== 'undefined') {
-      const style = document.createElement('style');
-      style.innerHTML = `
-        .react-native-paper__backdrop {
-          pointer-events: none !important;
-          background-color: transparent !important;
-        }
-      `;
-      document.head.appendChild(style);
-    }
-  }, []);
+  const toggleSidebar = () => {
+    LayoutAnimation.easeInEaseOut();
+    setCollapsed(!collapsed);
+  };
 
   const renderContent = () => {
     switch (active) {
@@ -67,14 +61,16 @@ export default function AdminDashboard({ onLogout }) {
       case "syllabus_upload":
         return <AdminSyllabusUploadScreen />;
       case "create_user":
-        return <CreateUserScreen user={{ user_id: 1, role: 'admin' }} />;
+        return <CreateUserScreen user={{ user_id: 1, role: "admin" }} />;
       case "form_responses":
         return selectedFormId ? (
-          <FormResponsesViewer formId={selectedFormId} onBack={() => setSelectedFormId(null)} />
+          <FormResponsesViewer
+            formId={selectedFormId}
+            onBack={() => setSelectedFormId(null)}
+          />
         ) : (
           <SelectFormScreen onSelect={setSelectedFormId} />
         );
-      case "tasks":
       default:
         return <AdminCreateTaskScreen />;
     }
@@ -108,186 +104,151 @@ export default function AdminDashboard({ onLogout }) {
   };
 
   const navItems = [
-    { key: "tasks", title: "Tasks" },
-    { key: "form_responses", title: "Form Responses" },
-    { key: "assign", title: "Assignment Rules" },
-    { key: "fms_view", title: "FMS Overview" },
-    { key: "fms_builder", title: "FMS Builder" },
-    { key: "forms", title: "Forms" },
-    { key: "classes", title: "Classes" },
-    { key: "subjects", title: "Subjects" },
-    { key: "user_access", title: "User Access" },
-    { key: "syllabus_upload", title: "Syllabus Upload" },
-    { key: "holidays", title: "Holidays" },
-    { key: "reports", title: "Reports" },
-    { key: "create_user", title: "Create User" },
+    { key: "tasks", title: "Tasks", icon: "clipboard-text" },
+    { key: "form_responses", title: "Forms", icon: "file-document" },
+    { key: "assign", title: "Assign", icon: "account-check" },
+    { key: "fms_view", title: "FMS", icon: "view-dashboard" },
+    { key: "fms_builder", title: "Builder", icon: "tools" },
+    { key: "forms", title: "Forms", icon: "form-select" },
+    { key: "classes", title: "Classes", icon: "school" },
+    { key: "subjects", title: "Subjects", icon: "book" },
+    { key: "user_access", title: "Access", icon: "shield-account" },
+    { key: "syllabus_upload", title: "Syllabus", icon: "upload" },
+    { key: "holidays", title: "Holidays", icon: "calendar" },
+    { key: "reports", title: "Reports", icon: "chart-bar" },
+    { key: "create_user", title: "Create User", icon: "account-plus" },
   ];
 
   return (
     <View style={styles.container}>
       {/* SIDEBAR */}
-      <View style={styles.sidebar}>
-        <View style={styles.brand}>
-          <Text style={styles.brandText}>Admin Panel</Text>
-        </View>
-        <ScrollView style={styles.sidebarScroll} showsVerticalScrollIndicator={true}>
-          {navItems.map(item => (
-            <TouchableOpacity
+      <View
+        style={[
+          styles.sidebar,
+          collapsed && styles.sidebarCollapsed,
+        ]}
+      >
+        {/* BRAND + TOGGLE */}
+<View style={styles.brand}>
+  {!collapsed && (
+    <Text style={styles.brandText}>Admin Panel</Text>
+  )}
+
+  <View style={styles.toggleBtnWrapper}>
+    <Button
+      icon={collapsed ? "menu" : "chevron-left"}
+      onPress={toggleSidebar}
+      compact
+      textColor="#fff"
+    />
+  </View>
+</View>
+
+        {/* MENU */}
+        <ScrollView showsVerticalScrollIndicator>
+          {navItems.map((item) => (
+            <Button
               key={item.key}
-              style={[
-                styles.sidebarItem,
-                active === item.key && styles.sidebarItemActive
-              ]}
+              icon={item.icon}
+              mode={active === item.key ? "contained" : "text"}
               onPress={() => setActive(item.key)}
+              style={styles.sidebarBtn}
+              contentStyle={{
+                justifyContent: collapsed ? "center" : "flex-start",
+              }}
+              textColor={active === item.key ? "#ffffff" : "#c7d2fe"}
+              buttonColor={
+                active === item.key ? "#2563eb" : "transparent"
+              }
             >
-              <Text style={[
-                styles.sidebarItemText,
-                active === item.key && styles.sidebarItemTextActive
-              ]}>
-                {item.title}
-              </Text>
-            </TouchableOpacity>
+              {!collapsed && item.title}
+            </Button>
           ))}
         </ScrollView>
       </View>
 
-      {/* MAIN CONTENT AREA */}
+      {/* MAIN */}
       <View style={styles.main}>
         {/* HEADER */}
         <Surface style={styles.header} elevation={2}>
           <Text variant="headlineSmall">{getHeaderTitle()}</Text>
+
           <View style={styles.profile}>
             <Text>Admin</Text>
             <Avatar.Text size={36} label="A" />
-            <Button mode="contained-tonal" onPress={onLogout}>Logout</Button>
+            <Button mode="contained-tonal" onPress={onLogout}>
+              Logout
+            </Button>
           </View>
         </Surface>
 
         {/* CONTENT */}
-        <ScrollView
-          style={styles.contentScroll}
-          showsVerticalScrollIndicator={true}
-          persistentScrollbar={true}
-        >
+        <ScrollView style={styles.contentScroll}>
           <View style={styles.content}>{renderContent()}</View>
         </ScrollView>
       </View>
     </View>
   );
 }
-function SidebarItem({ icon, label, active, onPress, showLabel }) {
-  return (
-    <Button
-      icon={icon}
-      mode={active ? "contained" : "text"}
-      onPress={onPress}
-      style={styles.sidebarBtn}
-      contentStyle={{
-        justifyContent: showLabel ? "flex-start" : "center",
-      }}
-      textColor={active ? "#fff" : "#c7d2fe"}
-      buttonColor={active ? "#2563eb" : "transparent"}
-    >
-      {showLabel ? label : ""}
-    </Button>
-  );
-}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: 'row',
-    width: '100%',
-    backgroundColor: '#F8FAFC',
-    height: '100vh',
+    flexDirection: "row",
+    height: "100vh",
   },
+
   sidebar: {
-    width: 280,
-    backgroundColor: "#1E293B",
-    borderRightWidth: 1,
-    borderRightColor: "#0F172A",
-    padding: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 2, height: 0 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
-    overflow: 'hidden',
+    width: 260,
+    backgroundColor: "#1e293b",
+    padding: 12,
   },
-  sidebarScroll: {
-    flex: 1,
+
+  sidebarCollapsed: {
+    width: 80,
   },
+
   brand: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 32,
-    paddingTop: 8,
-    paddingBottom: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(255,255,255,0.1)",
-    gap: 12,
+    justifyContent: "space-between",
+    marginBottom: 20,
   },
+
   brandText: {
     color: "#fff",
     fontSize: 18,
-    fontWeight: "700",
-    letterSpacing: 0.5,
+    fontWeight: "bold",
   },
-  sidebarItem: {
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    marginBottom: 8,
-    borderRadius: 8,
-    backgroundColor: "transparent",
-  },
-  sidebarItemActive: {
-    backgroundColor: "#2563eb",
-  },
-  sidebarItemText: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: "#c7d2fe",
-  },
-  sidebarItemTextActive: {
-    color: "#fff",
-    fontWeight: "600",
-  },
+
   sidebarBtn: {
     marginVertical: 4,
     borderRadius: 10,
   },
+
   main: {
     flex: 1,
-    flexDirection: 'column',
-    backgroundColor: '#F8FAFC',
-    overflow: 'hidden',
   },
+
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 24,
-    paddingVertical: 20,
-    backgroundColor: '#ffffff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 20,
+    backgroundColor: "#fff",
   },
+
   profile: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 16,
+    gap: 12,
   },
+
   contentScroll: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
   },
+
   content: {
-    padding: 24,
-    backgroundColor: 'transparent',
+    padding: 20,
   },
 });

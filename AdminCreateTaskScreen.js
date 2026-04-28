@@ -1,128 +1,151 @@
 import React, { useState } from "react";
-import { Alert } from 'react-native';
-import { View, StyleSheet, ScrollView, useWindowDimensions } from "react-native";
-import { Text, TextInput, Button, Switch, Surface, Divider } from "react-native-paper";
+import { Alert, View, StyleSheet, ScrollView } from "react-native";
+import { Text, TextInput, Button, Switch, Surface } from "react-native-paper";
 import { Picker } from "@react-native-picker/picker";
-import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
-import { ADMIN_BUTTON_MAX_WIDTH } from "./adminConfig";
 
-const API_BASE =
-  "https://indiangroupofschools.com/tasks-app/api";
+const API_BASE = "https://indiangroupofschools.com/tasks-app/api";
 
 export default function AdminCreateTaskScreen() {
-  const { width } = useWindowDimensions();
-  const isMobile = width < 768;
-  const [title, setTitle] = useState("");
-  const [frequency, setFrequency] = useState("D");
-  const [department, setDepartment] = useState("");
-  const [requiresPhoto, setRequiresPhoto] = useState(false);
+  const [tasks, setTasks] = useState([
+    { title: "", frequency: "D", department: "", requiresPhoto: false, timing: "" },
+  ]);
+
+  const addRow = () => {
+    setTasks([
+      ...tasks,
+      { title: "", frequency: "D", department: "", requiresPhoto: false, timing: "" },
+    ]);
+  };
+
+  const removeRow = (index) => {
+    const updated = [...tasks];
+    updated.splice(index, 1);
+    setTasks(updated);
+  };
+
+  const updateField = (index, field, value) => {
+    const updated = [...tasks];
+    updated[index][field] = value;
+    setTasks(updated);
+  };
 
   const submit = async () => {
-  try {
-    const form = new URLSearchParams();
-    form.append("title", title);
-    form.append("frequency", frequency);
-    form.append("department", department || "");
-    form.append("requires_photo", requiresPhoto ? "1" : "0");
+    try {
+      const validTasks = tasks.filter(
+        (t) => t.title.trim() && t.frequency && t.timing.trim()
+      );
 
-    await axios.post(
-      `${API_BASE}/admin_create_task_template.php`,
-      form.toString(),
-      {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
+      if (validTasks.length !== tasks.length) {
+        Alert.alert("Error", "Please fill Title, Frequency and Timing for all rows.");
+        return;
       }
-    );
 
-    Alert.alert("Success","Task template created");
-    setTitle("");
-    setDepartment("");
-    setRequiresPhoto(false);
-  } catch (e) {
-    Alert.alert("Error","Failed to create template");
-  }
-};
+      await Promise.all(
+        validTasks.map((t) => {
+          const formData = new FormData();
+          formData.append("title", t.title);
+          formData.append("frequency", t.frequency);
+          formData.append("department", t.department);
+          formData.append("requires_photo", t.requiresPhoto ? "1" : "0");
+          formData.append("timing", t.timing);
+
+          return axios.post(`${API_BASE}/admin_create_task_template.php`, formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          });
+        })
+      );
+
+      Alert.alert("Success", "All templates created");
+      setTasks([
+        { title: "", frequency: "D", department: "", requiresPhoto: false },
+      ]);
+    } catch (e) {
+      const errorMessage = e?.response?.data?.error || e.message || "Failed to create templates";
+      Alert.alert("Error", errorMessage);
+    }
+  };
 
   return (
-    <ScrollView style={styles.container}>
-      <Surface style={styles.card} elevation={1}>
-        <View style={styles.header}>
-          <View style={styles.headerIcon}>
-            <Ionicons name="add-circle" size={28} color="#2563EB" />
-          </View>
-          <View>
-            <Text style={styles.title}>Create Task Template</Text>
-            <Text style={styles.subtitle}>Add a new task template to the system</Text>
-          </View>
-        </View>
+    <ScrollView horizontal>
+      <ScrollView style={styles.container}>
+        <Surface style={styles.card}>
+          <Text style={styles.title}>Create Task Templates</Text>
 
-        <Divider style={styles.divider} />
-
-        <View style={styles.form}>
-          <TextInput
-            label="Task Title"
-            value={title}
-            onChangeText={setTitle}
-            mode="outlined"
-            style={styles.input}
-            placeholder="Enter task title"
-            left={<TextInput.Icon icon="text" />}
-          />
-
-          <View style={styles.pickerContainer}>
-            <Text style={styles.label}>Frequency</Text>
-            <View style={styles.pickerWrapper}>
-              <Picker 
-                selectedValue={frequency} 
-                onValueChange={setFrequency}
-                style={styles.picker}
-              >
-                <Picker.Item label="Daily" value="D" />
-                <Picker.Item label="Weekly" value="W" />
-                <Picker.Item label="Monthly" value="M" />
-                <Picker.Item label="Yearly" value="Y" />
-              </Picker>
-            </View>
+          {/* HEADER ROW */}
+          <View style={[styles.row, styles.headerRow]}>
+            <Text style={[styles.headerCell, styles.colTitle]}>Task Title</Text>
+            <Text style={[styles.headerCell, styles.colFrequency]}>Frequency</Text>
+            <Text style={[styles.headerCell, styles.colDepartment]}>Department</Text>
+            <Text style={[styles.headerCell, styles.colPhoto]}>Photo</Text>
+            <Text style={[styles.headerCell, styles.colTiming]}>Timing</Text>
+            <Text style={[styles.headerCell, styles.colAction]}>Action</Text>
           </View>
 
-          <TextInput
-            label="Department (optional)"
-            value={department}
-            onChangeText={setDepartment}
-            mode="outlined"
-            style={styles.input}
-            placeholder="Enter department name"
-            left={<TextInput.Icon icon="office-building" />}
-          />
+          {/* DATA ROWS */}
+          {tasks.map((task, index) => (
+            <View key={index} style={styles.row}>
 
-          <Surface style={styles.switchContainer} elevation={0}>
-            <View style={styles.switchRow}>
-              <View style={styles.switchLabelContainer}>
-                <Ionicons name="camera" size={20} color="#64748B" />
-                <Text style={styles.switchLabel}>Photo Required</Text>
-              </View>
-              <Switch 
-                value={requiresPhoto} 
-                onValueChange={setRequiresPhoto}
-                color="#2563EB"
+              <TextInput
+                value={task.title}
+                onChangeText={(val) => updateField(index, "title", val)}
+                style={[styles.cellInput, styles.colTitle]}
+                placeholder="Title"
               />
-            </View>
-          </Surface>
 
-          <Button 
-            mode="contained" 
-            onPress={submit}
-            style={styles.submitButton}
-            contentStyle={styles.submitButtonContent}
-            labelStyle={styles.submitButtonLabel}
-            icon="check-circle"
-          >
-            Create Template
+              <View style={[styles.cellPicker, styles.colFrequency]}>
+                <Picker
+                  selectedValue={task.frequency}
+                  onValueChange={(val) => updateField(index, "frequency", val)}
+                >
+                  <Picker.Item label="D" value="D" />
+                  <Picker.Item label="W" value="W" />
+                  <Picker.Item label="M" value="M" />
+                  <Picker.Item label="Y" value="Y" />
+                </Picker>
+              </View>
+
+              <TextInput
+                value={task.department}
+                onChangeText={(val) => updateField(index, "department", val)}
+                style={[styles.cellInput, styles.colDepartment]}
+                placeholder="Department"
+              />
+
+              <View style={[styles.cellSwitch, styles.colPhoto]}>
+                <Switch
+                  value={task.requiresPhoto}
+                  onValueChange={(val) => updateField(index, "requiresPhoto", val)}
+                />
+              </View>
+
+              <TextInput
+                value={task.timing}
+                onChangeText={(val) => updateField(index, "timing", val)}
+                style={[styles.cellInput, styles.colTiming]}
+                placeholder="HH:MM"
+              />
+
+              <View style={styles.colAction}>
+                <Button onPress={() => removeRow(index)} textColor="red">
+                  ❌
+                </Button>
+              </View>
+
+            </View>
+          ))}
+
+          <Button mode="outlined" onPress={addRow} style={{ marginTop: 10 }}>
+            + Add Row
           </Button>
-        </View>
-      </Surface>
+
+          <Button mode="contained" onPress={submit} style={{ marginTop: 10 }}>
+            Create Templates
+          </Button>
+        </Surface>
+      </ScrollView>
     </ScrollView>
   );
 }
@@ -130,113 +153,97 @@ export default function AdminCreateTaskScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8FAFC",
-    paddingHorizontal: 0,
-    paddingVertical: 8,
+    padding: 10,
   },
+
   card: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    marginHorizontal: 0,
-    marginVertical: 8,
-    overflow: "hidden",
-    borderWidth: 1,
-    borderColor: "#E2E8F0",
+    padding: 15,
+    borderRadius: 10,
+    backgroundColor: "#2a289c",
   },
-  header: {
-    flexDirection: "column",
-    padding: 16,
-    paddingBottom: 16,
-    alignItems: "center",
-    gap: 12,
-  },
-  headerIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
-    backgroundColor: "#EFF6FF",
-    justifyContent: "center",
-    alignItems: "center",
-  },
+
   title: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: "#0F172A",
-    marginBottom: 2,
-    letterSpacing: -0.3,
-    textAlign: "center",
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
   },
-  subtitle: {
-    fontSize: 13,
-    color: "#64748B",
-    fontWeight: "500",
-    textAlign: "center",
-  },
-  divider: {
-    marginHorizontal: 0,
-  },
-  form: {
-    padding: 16,
-  },
-  input: {
-    marginBottom: 16,
-    backgroundColor: "#FFFFFF",
-    maxWidth: 500,
-  },
-  pickerContainer: {
-    marginBottom: 16,
-  },
-  label: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: "#374151",
+
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 8,
   },
-  pickerWrapper: {
-    borderWidth: 1,
-    borderColor: "#D1D5DB",
-    borderRadius: 8,
-    backgroundColor: "#FFFFFF",
-    overflow: "hidden",
+
+  colTitle: { flex: 2 },
+  colFrequency: { flex: 1 },
+  colDepartment: { flex: 2 },
+  colPhoto: { flex: 1 },
+  colTiming: { flex: 1.5 },
+  colAction: { flex: 0.7 },
+
+  headerCell: {
+    flex: 1,
+    fontWeight: "bold",
+    textAlign: "center",
   },
-  picker: {
+
+  cellInput: {
+    flex: 1,
+    marginRight: 5,
     height: 45,
   },
-  switchContainer: {
-    backgroundColor: "#F8FAFC",
-    borderRadius: 10,
-    padding: 14,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: "#E2E8F0",
-  },
-  switchRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  switchLabelContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
+
+  cellPicker: {
     flex: 1,
+    height: 45,
+    borderWidth: 1,
+    borderColor: "rgb(41, 58, 43)",
+    marginRight: 5,
   },
-  switchLabel: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#1E293B",
+
+  cellSwitch: {
+    flex: 0.7,
+    alignItems: "center",
   },
-  submitButton: {
-    borderRadius: 10,
-    elevation: 0,
-    maxWidth: ADMIN_BUTTON_MAX_WIDTH,
+
+  cellPicker: {
+    width: 120,
+    height: 45,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    marginRight: 5,
   },
-  submitButtonContent: {
-    paddingVertical: 6,
+
+  cellSwitch: {
+    width: 100,
+    alignItems: "center",
   },
-  submitButtonLabel: {
-    fontSize: 15,
-    fontWeight: "600",
-    letterSpacing: 0.2,
+
+  headerCell: {
+    fontWeight: "bold",
+    textAlign: "center",
   },
+
+  cellInput: {
+    marginRight: 5,
+    height: 45,
+  },
+
+  cellPicker: {
+    height: 45,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    marginRight: 5,
+  },
+
+  cellSwitch: {
+    alignItems: "center",
+  },
+
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+  }
+
+
 });
