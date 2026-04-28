@@ -31,7 +31,7 @@ export default function AdminAssignTaskScreen() {
   const [users, setUsers] = useState([]);
   const [assignments, setAssignments] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);
-  const [selectedTemplate, setSelectedTemplate] = useState("");
+  const [selectedTemplates, setSelectedTemplates] = useState([]);
   const [startDate, setStartDate] = useState("");
   const [startTime, setStartTime] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -42,6 +42,10 @@ export default function AdminAssignTaskScreen() {
   const [loading, setLoading] = useState(false);
   const [activeCalendar, setActiveCalendar] = useState("");
   const [calendarMonth, setCalendarMonth] = useState(new Date());
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [userSearch, setUserSearch] = useState("");
+  const [templateSearch, setTemplateSearch] = useState("");
+
 
   useEffect(() => {
     loadAll();
@@ -64,6 +68,13 @@ export default function AdminAssignTaskScreen() {
 
 
 
+  const toggleTemplateSelection = (templateId) => {
+    setSelectedTemplates((prev) =>
+      prev.includes(templateId)
+        ? prev.filter((id) => id !== templateId)
+        : [...prev, templateId]
+    );
+  };
 
 
 
@@ -158,7 +169,7 @@ export default function AdminAssignTaskScreen() {
   };
 
   const assignTasksToUsers = async () => {
-    if (!selectedTemplate) {
+    if (selectedTemplates.length === 0) {
       Alert.alert("Error", "Please select a task template");
       return;
     }
@@ -174,34 +185,36 @@ export default function AdminAssignTaskScreen() {
     setLoading(true);
     try {
       for (const userId of selectedUsers) {
-        const data = {
-          task_template_id: selectedTemplate,
-          assigned_user_id: userId,
-          assigned_department: "",
-          start_date: formatDateTimeForBackend(startDate, startTime),
-          end_date: endDate ? formatDateTimeForBackend(endDate, endTime) : "",
-          grace_days: graceDays,
-          skip_weekdays: skipDays.join(","),
-        };
+        for (const templateId of selectedTemplates) {
+          const data = {
+            task_template_id: templateId,
+            assigned_user_id: userId,
+            assigned_department: "",
+            start_date: formatDateTimeForBackend(startDate, startTime),
+            end_date: endDate ? formatDateTimeForBackend(endDate, endTime) : "",
+            grace_days: graceDays,
+            skip_weekdays: skipDays.join(","),
+          };
 
-        await apiFetch("/admin_assign_task.php", {
-          method: "POST",
-          body: data,
-        });
+          await apiFetch("/admin_assign_task.php", {
+            method: "POST",
+            body: data,
+          });
+        }
       }
 
       Alert.alert("Success", `Task assigned to ${selectedUsers.length} user(s)!`);
-      
+
       // Reset form
       setSelectedUsers([]);
-      setSelectedTemplate("");
+      setSelectedTemplates([]);
       setStartDate("");
       setStartTime("");
       setEndDate("");
       setEndTime("");
       setSkipDays([]);
       setGraceDays("0");
-      
+
       loadAll();
     } catch (err) {
       Alert.alert("Error", "Failed to assign task: " + err.message);
@@ -250,6 +263,15 @@ export default function AdminAssignTaskScreen() {
     return d.toISOString().split('T')[0];
   };
 
+  const filteredUsers = users.filter(user =>
+    user.name.toLowerCase().includes(userSearch.toLowerCase())
+  );
+
+  const filteredTemplates = templates.filter(template =>
+    template.title.toLowerCase().includes(templateSearch.toLowerCase())
+  );
+
+
   return (
     <View style={{ flex: 1 }}>
       <ScrollView style={styles.container}>
@@ -274,8 +296,8 @@ export default function AdminAssignTaskScreen() {
                   onPress={() => setTemplateMenuOpen(true)}
                 >
                   <Text style={styles.selectButtonText}>
-                    {selectedTemplate
-                      ? templates.find(t => t.id == selectedTemplate)?.title || "Select Template"
+                    {selectedTemplates.length > 0
+                      ? `${selectedTemplates.length} task(s) selected`
                       : "Select Template"}
                   </Text>
                   <Ionicons name="chevron-down" size={20} color="#64748B" />
@@ -283,44 +305,112 @@ export default function AdminAssignTaskScreen() {
               }
               theme={{ colors: { backdrop: 'transparent' } }}
             >
-              {templates.map((template) => (
-                <Menu.Item
-                  key={template.id}
-                  title={template.title}
-                  onPress={() => {
-                    setSelectedTemplate(template.id);
-                    setTemplateMenuOpen(false);
-                  }}
+              {/* 🔍 Search Input */}
+              <View style={{ padding: 8 }}>
+                <TextInput
+                  placeholder="Search template..."
+                  value={templateSearch}
+                  onChangeText={setTemplateSearch}
+                  mode="outlined"
+                  style={{ backgroundColor: "#fff", height: 40 }}
                 />
-              ))}
+              </View>
+              {filteredTemplates.map((template) => {
+                const isSelected = selectedTemplates.includes(template.id);
+
+                return (
+                  <Menu.Item
+                    key={template.id}
+                    onPress={() => toggleTemplateSelection(template.id)}
+                    title={
+                      <View style={{ flexDirection: "row", alignItems: "center" }}>
+                        <Ionicons
+                          name={isSelected ? "checkbox" : "checkbox-outline"}
+                          size={18}
+                          color={isSelected ? "#2563EB" : "#94A3B8"}
+                          style={{ marginRight: 8 }}
+                        />
+                        <Text>{template.title}</Text>
+                      </View>
+                    }
+                  />
+                );
+              })}
             </Menu>
 
             {/* Select Users */}
             <Text style={styles.label}>Select Users *</Text>
-            <View style={styles.userGrid}>
-              {users.map((user) => (
+
+            <Menu
+              visible={userMenuOpen}
+              onDismiss={() => setUserMenuOpen(false)}
+              anchor={
                 <TouchableOpacity
-                  key={user.id}
-                  style={[
-                    styles.userCheckbox,
-                    selectedUsers.includes(user.id) && styles.userCheckboxSelected
-                  ]}
-                  onPress={() => toggleUserSelection(user.id)}
+                  style={styles.selectButton}
+                  onPress={() => setUserMenuOpen(true)}
                 >
-                  <Ionicons
-                    name={selectedUsers.includes(user.id) ? "checkbox" : "checkbox-outline"}
-                    size={20}
-                    color={selectedUsers.includes(user.id) ? "#2563EB" : "#CBD5E1"}
-                  />
-                  <Text style={[
-                    styles.userCheckboxText,
-                    selectedUsers.includes(user.id) && styles.userCheckboxTextSelected
-                  ]}>
-                    {user.name}
+                  <Text style={styles.selectButtonText}>
+                    {selectedUsers.length > 0
+                      ? `${selectedUsers.length} user(s) selected`
+                      : "Select Users"}
                   </Text>
+                  <Ionicons name="chevron-down" size={20} color="#64748B" />
                 </TouchableOpacity>
-              ))}
-            </View>
+              }
+            >
+              {/* Search Input */}
+              <View style={{ padding: 8 }}>
+                <TextInput
+                  placeholder="Search user..."
+                  value={userSearch}
+                  onChangeText={setUserSearch}
+                  mode="outlined"
+                  style={{ backgroundColor: "#fff", height: 40 }}
+                />
+              </View>
+
+              {/* User List */}
+              {filteredUsers.map((user) => {
+                const isSelected = selectedUsers.includes(user.id);
+
+                return (
+                  <Menu.Item
+                    key={user.id}
+                    onPress={() => toggleUserSelection(user.id)}
+                    title={
+                      <View style={{ flexDirection: "row", alignItems: "center" }}>
+                        <Ionicons
+                          name={isSelected ? "checkbox" : "checkbox-outline"}
+                          size={18}
+                          color={isSelected ? "#2563EB" : "#94A3B8"}
+                          style={{ marginRight: 8 }}
+                        />
+                        <Text>{user.name}</Text>
+                      </View>
+                    }
+                  />
+                );
+              })}
+            </Menu>
+
+
+
+            {/* Selected Users Display */}
+            {selectedUsers.length > 0 && (
+              <View style={styles.selectedUsersContainer}>
+                {selectedUsers.map((id) => {
+                  const user = users.find(u => u.id === id);
+                  return (
+                    <View key={id} style={styles.userChip}>
+                      <Text style={styles.userChipText}>{user?.name}</Text>
+                      <TouchableOpacity onPress={() => toggleUserSelection(id)}>
+                        <Ionicons name="close-circle" size={16} color="#EF4444" />
+                      </TouchableOpacity>
+                    </View>
+                  );
+                })}
+              </View>
+            )}
 
             {/* Date/Time Inputs */}
             <View style={styles.dateTimeRow}>
@@ -387,7 +477,7 @@ export default function AdminAssignTaskScreen() {
                   </TouchableOpacity>
                 </View>
                 <View style={styles.calendarWeekRow}>
-                  {['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map((label) => (
+                  {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((label) => (
                     <Text key={label} style={styles.calendarWeekLabel}>{label}</Text>
                   ))}
                 </View>
@@ -449,7 +539,7 @@ export default function AdminAssignTaskScreen() {
               mode="contained"
               onPress={assignTasksToUsers}
               loading={loading}
-              disabled={loading || selectedUsers.length === 0 || !selectedTemplate}
+              disabled={loading || selectedUsers.length === 0 || selectedTemplates.length === 0}
               style={{ maxWidth: ADMIN_BUTTON_MAX_WIDTH, marginTop: 16 }}
             >
               Assign Task
@@ -472,8 +562,10 @@ export default function AdminAssignTaskScreen() {
                 <Text style={styles.emptyText}>No assignments yet</Text>
               </View>
             ) : (
-              <ScrollView horizontal showsHorizontalScrollIndicator={true}>
+              <View>
                 <View style={styles.tableContainer}>
+
+                  {/* ✅ Sticky Header */}
                   <View style={styles.tableHeader}>
                     <Text style={[styles.tableHeaderCell, styles.col1]}>User</Text>
                     <Text style={[styles.tableHeaderCell, styles.col2]}>Task</Text>
@@ -482,17 +574,34 @@ export default function AdminAssignTaskScreen() {
                     <Text style={[styles.tableHeaderCell, styles.col5]}>Skip Days</Text>
                   </View>
 
-                  {assignments.map((assignment) => (
-                    <View key={assignment.id} style={styles.tableRow}>
-                      <Text style={[styles.tableCell, styles.col1]}>{assignment.user_name || "N/A"}</Text>
-                      <Text style={[styles.tableCell, styles.col2]}>{assignment.task_title}</Text>
-                      <Text style={[styles.tableCell, styles.col3]}>{assignment.start_date}</Text>
-                      <Text style={[styles.tableCell, styles.col4]}>{assignment.end_date || "Ongoing"}</Text>
-                      <Text style={[styles.tableCell, styles.col5]}>{assignment.skip_weekdays || "None"}</Text>
-                    </View>
-                  ))}
+                  {/* ✅ Scrollable Rows Only */}
+                  <ScrollView
+                    style={{ maxHeight: 400 }}   // 👈 adjust height as needed
+                    showsVerticalScrollIndicator={true}
+                  >
+                    {assignments.map((assignment) => (
+                      <View key={assignment.id} style={styles.tableRow}>
+                        <Text style={[styles.tableCell, styles.col1]}>
+                          {assignment.user_name || "N/A"}
+                        </Text>
+                        <Text style={[styles.tableCell, styles.col2]}>
+                          {assignment.task_title}
+                        </Text>
+                        <Text style={[styles.tableCell, styles.col3]}>
+                          {assignment.start_date}
+                        </Text>
+                        <Text style={[styles.tableCell, styles.col4]}>
+                          {assignment.end_date || "Ongoing"}
+                        </Text>
+                        <Text style={[styles.tableCell, styles.col5]}>
+                          {assignment.skip_weekdays || "None"}
+                        </Text>
+                      </View>
+                    ))}
+                  </ScrollView>
+
                 </View>
-              </ScrollView>
+              </View>
             )}
           </View>
         </Surface>
@@ -500,6 +609,7 @@ export default function AdminAssignTaskScreen() {
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -707,13 +817,15 @@ const styles = StyleSheet.create({
     padding: 0,
   },
   tableContainer: {
-    minWidth: "100%",
+    width: "100%",
   },
   tableHeader: {
     flexDirection: "row",
-    backgroundColor: "#F1F5F9",
-    borderBottomWidth: 2,
+    backgroundColor: "#faf8fc",
+    borderBottomWidth: 1,
     borderBottomColor: "#CBD5E1",
+    zIndex: 10,          // 👈 important
+    elevation: 3,        // 👈 Android shadow
   },
   tableHeaderCell: {
     paddingHorizontal: 12,
@@ -733,12 +845,14 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     fontSize: 12,
     color: "#1E293B",
+    flexShrink: 1,
   },
-  col1: { width: 120, minWidth: 120 },
-  col2: { width: 150, minWidth: 150 },
-  col3: { width: 130, minWidth: 130 },
-  col4: { width: 130, minWidth: 130 },
-  col5: { width: 100, minWidth: 100 },
+
+  col1: { flex: 1 },
+  col2: { flex: 2 },
+  col3: { flex: 1.5 },
+  col4: { flex: 1.5 },
+  col5: { flex: 1 },
   emptyContainer: {
     paddingVertical: 32,
     alignItems: "center",
@@ -749,5 +863,28 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
     fontSize: 13,
     fontWeight: "500",
+  },
+
+  selectedUsersContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    marginTop: 10,
+  },
+
+  userChip: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#DBEAFE",
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 20,
+    gap: 6,
+  },
+
+  userChipText: {
+    color: "#1E40AF",
+    fontSize: 12,
+    fontWeight: "600",
   },
 });
