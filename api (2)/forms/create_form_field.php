@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../_cors.php';
 require_once __DIR__ . "/../config.php"; // your config with $pdo
 
 header("Content-Type: application/json");

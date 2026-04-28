@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../_cors.php';
 require_once __DIR__ . '/../config.php'; // $pdo
 require_once __DIR__ . '/../auth.php';   // $user
 

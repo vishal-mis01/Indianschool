@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { View, Text, ScrollView, StyleSheet, useWindowDimensions } from "react-native";
 import { Button, TextInput, Surface } from "react-native-paper";
 import * as DocumentPicker from "expo-document-picker";
+import * as ImagePicker from "expo-image-picker";
+import * as Location from "expo-location";
 import apiFetch from "./apiFetch";
 
 export default function UserFormFill({ formId, onBack }) {
@@ -40,6 +42,63 @@ export default function UserFormFill({ formId, onBack }) {
     }));
   };
 
+  /* CAPTURE PHOTO WITH LOCATION AND TIMESTAMP */
+  const capturePhoto = async (fieldId) => {
+    try {
+      // Request camera permissions
+      const cameraPermission = await ImagePicker.requestCameraPermissionsAsync();
+      if (cameraPermission.status !== 'granted') {
+        alert('Camera permission is required to take photos');
+        return;
+      }
+
+      // Request location permissions
+      const locationPermission = await Location.requestForegroundPermissionsAsync();
+      if (locationPermission.status !== 'granted') {
+        alert('Location permission is required to capture photo location');
+        return;
+      }
+
+      // Get current location
+      const location = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.High,
+      });
+
+      // Capture photo
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: false,
+        aspect: [4, 3],
+        quality: 0.8,
+      });
+
+      if (!result.canceled) {
+        const photo = result.assets[0];
+        const timestamp = new Date().toISOString();
+
+        // Create enhanced photo object with metadata
+        const photoWithMetadata = {
+          ...photo,
+          location: {
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude,
+            accuracy: location.coords.accuracy,
+          },
+          timestamp: timestamp,
+          capturedAt: timestamp,
+        };
+
+        setValues((prev) => ({
+          ...prev,
+          [fieldId]: photoWithMetadata,
+        }));
+      }
+    } catch (error) {
+      console.error('Error capturing photo:', error);
+      alert('Failed to capture photo. Please try again.');
+    }
+  };
+
   /* CLEAR FORM */
   const clearForm = () => {
     setValues({});
@@ -74,11 +133,20 @@ export default function UserFormFill({ formId, onBack }) {
 
       Object.entries(values).forEach(([fieldId, value]) => {
         if (value?.uri) {
+          // Handle file/camera uploads
           fd.append(`files[${fieldId}]`, {
             uri: value.uri,
-            name: value.name,
-            type: value.mimeType || "application/octet-stream",
+            name: value.name || `photo_${Date.now()}.jpg`,
+            type: value.mimeType || "image/jpeg",
           });
+          
+          // Add metadata for camera photos
+          if (value.location) {
+            fd.append(`metadata[${fieldId}][latitude]`, value.location.latitude.toString());
+            fd.append(`metadata[${fieldId}][longitude]`, value.location.longitude.toString());
+            fd.append(`metadata[${fieldId}][accuracy]`, value.location.accuracy?.toString() || '0');
+            fd.append(`metadata[${fieldId}][timestamp]`, value.timestamp);
+          }
         } else {
           fd.append(`values[${fieldId}]`, value);
         }
@@ -152,6 +220,28 @@ export default function UserFormFill({ formId, onBack }) {
                 >
                   {values[f.id]?.name || "Upload File"}
                 </Button>
+              ) : f.field_type === "camera" ? (
+                <View style={styles.cameraContainer}>
+                  <Button 
+                    mode="outlined" 
+                    onPress={() => capturePhoto(f.id)}
+                    icon="camera"
+                    style={styles.uploadButton}
+                    contentStyle={styles.uploadButtonContent}
+                  >
+                    {values[f.id] ? "Photo Captured" : "Take Photo"}
+                  </Button>
+                  {values[f.id] && values[f.id].location && (
+                    <View style={styles.metadataContainer}>
+                      <Text style={styles.metadataText}>
+                        📍 Location: {values[f.id].location.latitude.toFixed(6)}, {values[f.id].location.longitude.toFixed(6)}
+                      </Text>
+                      <Text style={styles.metadataText}>
+                        🕒 Captured: {new Date(values[f.id].timestamp).toLocaleString()}
+                      </Text>
+                    </View>
+                  )}
+                </View>
               ) : (
                 <TextInput
                   mode="flat"
@@ -197,7 +287,7 @@ export default function UserFormFill({ formId, onBack }) {
               mode="text" 
               onPress={onBack}
               style={styles.backButton}
-              icon="arrow-back"
+              icon="arrow-left"
             >
               Back
             </Button>
@@ -339,5 +429,21 @@ const styles = StyleSheet.create({
     color: "#94A3B8",
     fontSize: 15,
     fontStyle: "italic",
+  },
+  cameraContainer: {
+    width: '100%',
+  },
+  metadataContainer: {
+    marginTop: 8,
+    padding: 8,
+    backgroundColor: '#F8FAFC',
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  metadataText: {
+    fontSize: 12,
+    color: '#475569',
+    marginBottom: 2,
   },
 });

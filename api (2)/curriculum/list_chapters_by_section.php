@@ -52,7 +52,6 @@ try {
             FROM syllabus s
             WHERE s.class_subject_id = ?" . $section_filter . "
             GROUP BY s.chapter_no, s.chapter_name
-            ORDER BY s.chapter_no ASC
         ");
 
         $params = array_merge([$class_subject_id], $section_params);
@@ -69,7 +68,6 @@ try {
             WHERE cs.class_id = ?
             AND cs.subject_id = ?" . $section_filter . "
             GROUP BY s.chapter_no, s.chapter_name
-            ORDER BY s.chapter_no ASC
         ");
 
         $params = array_merge([$class_id, $subject_id], $section_params);

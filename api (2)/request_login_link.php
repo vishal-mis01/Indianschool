@@ -4,6 +4,7 @@
  * Generates a secure login link and sends it via email
  * The link contains a JWT-like token that expires in 15 minutes
  */
+require_once __DIR__ . '/_cors.php';
 require_once "config.php";
 
 header("Content-Type: application/json");

@@ -1,6 +1,7 @@
 
 <?php
 // Always require config.php first for global CORS and JSON headers
+require_once __DIR__ . '/../_cors.php';
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../auth.php';
 

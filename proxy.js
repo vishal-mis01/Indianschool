@@ -21,11 +21,14 @@ const server = http.createServer((req, res) => {
   // forward `/api/*` requests there; otherwise fall back to live host.
   let options;
   if (req.url.startsWith('/api/')) {
-    // forward to local php server if it's running
+    // forward to local PHP server if it's running
+    // strip the /api prefix because the PHP server root is the api (2) folder
+    const localPath = req.url.replace(/^\/api/, '');
     options = {
+      protocol: 'http:',
       hostname: 'localhost',
       port: 3002,
-      path: req.url,         // local server already serves at /api
+      path: localPath,
       method: req.method,
       headers: {
         ...req.headers,
@@ -36,6 +39,7 @@ const server = http.createServer((req, res) => {
   } else {
     const targetPath = '/tasks-app' + req.url;
     options = {
+      protocol: 'https:',
       hostname: 'indiangroupofschools.com',
       path: targetPath,
       method: req.method,
@@ -47,7 +51,8 @@ const server = http.createServer((req, res) => {
     };
   }
 
-  const proxyReq = https.request(options, (proxyRes) => {
+  const requestLib = options.protocol === 'https:' ? https : http;
+  const proxyReq = requestLib.request(options, (proxyRes) => {
     console.log(`[RESPONSE] ${proxyRes.statusCode}`);
     res.writeHead(proxyRes.statusCode, proxyRes.headers);
     proxyRes.pipe(res);

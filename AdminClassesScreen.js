@@ -28,11 +28,16 @@ export default function AdminClassesScreen() {
     setRefreshing(true);
     try {
       const data = await apiFetch('/classes/list_classes.php', { method: 'GET' });
+      console.log('loadClasses response:', data);
       if (Array.isArray(data)) {
         setClasses(data);
+      } else {
+        console.error('Expected array, got:', typeof data, data);
+        Alert.alert('Error', 'Unexpected response format: ' + JSON.stringify(data));
       }
     } catch (err) {
-      Alert.alert('Error', 'Failed to load classes');
+      console.error('loadClasses error:', err);
+      Alert.alert('Error', 'Failed to load classes: ' + err.message);
     } finally {
       setRefreshing(false);
     }

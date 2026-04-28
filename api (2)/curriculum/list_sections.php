@@ -46,10 +46,6 @@ try {
                 WHEN s.section_type IS NULL OR TRIM(s.section_type) = '' THEN 'General'
                 ELSE TRIM(s.section_type)
             END
-            ORDER BY CASE
-                WHEN s.section_type IS NULL OR TRIM(s.section_type) = '' THEN 'General'
-                ELSE TRIM(s.section_type)
-            END ASC
         ");
         $stmt->execute([$class_subject_id]);
     } else {
@@ -69,10 +65,6 @@ try {
                 WHEN s.section_type IS NULL OR TRIM(s.section_type) = '' THEN 'General'
                 ELSE TRIM(s.section_type)
             END
-            ORDER BY CASE
-                WHEN s.section_type IS NULL OR TRIM(s.section_type) = '' THEN 'General'
-                ELSE TRIM(s.section_type)
-            END ASC
         ");
         $stmt->execute([$class_id, $subject_id]);
     }

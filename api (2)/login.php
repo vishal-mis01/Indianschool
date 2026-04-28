@@ -4,6 +4,7 @@
  * Supported Roles: admin, user, process_coordinator, ea (Executive Assistant), md (Managing Director)
  * Returns: token, user_id, role
  */
+require_once __DIR__ . '/_cors.php';
 require_once "config.php";
 
 header("Content-Type: application/json");

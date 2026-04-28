@@ -49,7 +49,6 @@ try {
             sequence_order
         FROM syllabus
         WHERE class_subject_id = ? AND chapter_no = ?
-        ORDER BY topic, sub_topic
     ");
     $stmt->execute([$class_subject_id, $chapter_no]);
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);

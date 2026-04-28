@@ -48,22 +48,11 @@ export default function LoginScreen({ onLogin }) {
       setError(null);
 
       console.log("🔐 Attempting login for:", email);
-      console.log("🌐 API URL:", `${API}/login.php`);
 
-      const res = await fetch(`${API}/login.php`, {
+      const data = await apiFetch("/login.php", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: { email, password },
       });
-
-      console.log("📡 Login response status:", res.status);
-      const text = await res.text();
-      console.log("📄 Raw response:", text);
-
-      if (!text.trim()) throw new Error("Empty response");
-
-      const data = JSON.parse(text);
-      console.log("📋 Parsed response:", data);
 
       if (!(data.token && data.user_id && data.role)) {
         throw new Error(data.message || "Login failed - missing required fields");
@@ -74,7 +63,6 @@ export default function LoginScreen({ onLogin }) {
       await AsyncStorage.setItem("role", data.role);
       await AsyncStorage.setItem("user_id", String(data.user_id));
 
-      // Remember email if checkbox is checked
       if (rememberEmail) {
         await AsyncStorage.setItem("remembered_email", email);
       } else {
@@ -92,15 +80,15 @@ export default function LoginScreen({ onLogin }) {
               JSON.stringify(reportsRes.data || [])
             );
           }
-        } catch {}
+        } catch (fetchReportError) {
+          console.warn("Failed to fetch cached reports after login:", fetchReportError.message);
+        }
       }
 
       onLogin({ user_id: data.user_id, role: data.role });
-      
-      // Show success message briefly
+
       setSuccessMessage("Login successful! You'll stay signed in and your email will be remembered.");
       setTimeout(() => setSuccessMessage(null), 3000);
-      
     } catch (e) {
       setError(e.message);
     } finally {
@@ -117,16 +105,10 @@ export default function LoginScreen({ onLogin }) {
         throw new Error("Please enter your email address");
       }
 
-      const res = await fetch(`${API}/request_login_link.php`, {
+      const data = await apiFetch("/request_login_link.php", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.trim() }),
+        body: { email: email.trim() },
       });
-
-      const text = await res.text();
-      if (!text.trim()) throw new Error("Empty response");
-
-      const data = JSON.parse(text);
 
       if (!data.success) {
         throw new Error(data.message || "Failed to send login link");
@@ -134,7 +116,6 @@ export default function LoginScreen({ onLogin }) {
 
       setSuccessMessage("Login link sent! Check your email and click the link to sign in.");
       setShowMagicLink(false);
-      
     } catch (e) {
       setError(e.message);
     } finally {

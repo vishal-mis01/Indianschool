@@ -2,6 +2,7 @@
 // api/admin_manage_app_versions.php
 // Admin endpoint to manage app versions and releases
 
+require_once __DIR__ . '/_cors.php';
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/auth.php';
 

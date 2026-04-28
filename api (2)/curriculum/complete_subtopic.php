@@ -17,12 +17,15 @@ $chapter_no = (int)($data['chapter_no'] ?? 0);
 $topic = trim($data['topic'] ?? '');
 $sub_topic = trim($data['sub_topic'] ?? '');
 
+error_log("complete_subtopic.php: Received data: " . json_encode($data));
+
 // If only chapter_no and class_subject_id provided, mark whole chapter complete
 $mark_whole_chapter = empty($topic) && empty($sub_topic);
 
-if (!$class_subject_id || !$chapter_no) {
+if ($class_subject_id <= 0 || $chapter_no < 0) {
+    error_log("complete_subtopic.php: Invalid data - class_subject_id: $class_subject_id, chapter_no: $chapter_no");
     http_response_code(400);
-    echo json_encode(["error" => "class_subject_id and chapter_no required"]);
+    echo json_encode(["error" => "class_subject_id must be > 0 and chapter_no must be >= 0"]);
     exit;
 }
 

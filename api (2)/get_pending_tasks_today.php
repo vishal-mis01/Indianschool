@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/_cors.php';
 require "config.php";
 require "auth.php";
 

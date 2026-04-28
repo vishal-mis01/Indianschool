@@ -51,7 +51,7 @@ export default function AdminFormBuilder() {
   const [searchQuery, setSearchQuery] = useState("");
   const [dropdownSearchVisible, setDropdownSearchVisible] = useState(false);
   
-  const FIELD_TYPES = ["text", "number", "date", "textarea", "file", "dropdown", "multiple_choice"];
+  const FIELD_TYPES = ["text", "number", "date", "textarea", "file", "camera", "dropdown", "multiple_choice"];
 
   /* ===== INITIAL LOAD ===== */
   useEffect(() => {

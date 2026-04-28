@@ -286,7 +286,7 @@ export default function UserAttendanceForm({ onBack }) {
                 Clear
               </Button>
             </View>
-            <Button mode="text" onPress={onBack} style={styles.backButton} icon="arrow-back">
+            <Button mode="text" onPress={onBack} style={styles.backButton} icon="arrow-left">
               Back
             </Button>
           </View>

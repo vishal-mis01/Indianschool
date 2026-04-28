@@ -14,6 +14,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import UserAllTasks from "./UserAllTasks";
 import UserFormFill from "./UserFormFill";
 import UserAttendanceForm from "./UserAttendanceForm";
+import UserTravelForm from "./UserTravelForm";
 import UserReports from "./UserReports";
 import UserLessonPlans from "./UserLessonPlans";
 import apiFetch from "./apiFetch";
@@ -23,6 +24,7 @@ export default function UserDashboard({ user, onLogout }) {
   const [assignedForms, setAssignedForms] = useState([]);
   const [formId, setFormId] = useState(null);
   const [attendanceMode, setAttendanceMode] = useState(false);
+  const [travelMode, setTravelMode] = useState(false);
   const [error, setError] = useState("");
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
@@ -41,6 +43,7 @@ export default function UserDashboard({ user, onLogout }) {
     if (active !== "forms") {
       setFormId(null);
       setAttendanceMode(false);
+      setTravelMode(false);
       return;
     }
 
@@ -66,6 +69,10 @@ export default function UserDashboard({ user, onLogout }) {
           return <UserAttendanceForm onBack={() => setAttendanceMode(false)} />;
         }
 
+        if (travelMode) {
+          return <UserTravelForm onBack={() => setTravelMode(false)} />;
+        }
+
         if (formId) {
           return <UserFormFill formId={formId} onBack={() => setFormId(null)} />;
         }
@@ -83,6 +90,16 @@ export default function UserDashboard({ user, onLogout }) {
                 <View style={[styles.formCard, styles.attendanceCard]}>
                   <Text style={styles.formName}>Mark Attendance</Text>
                   <Text style={styles.cardHint}>Tap to mark attendance</Text>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity
+                key="travel-card"
+                style={styles.cardWrapper}
+                onPress={() => setTravelMode(true)}
+              >
+                <View style={[styles.formCard, styles.travelCard]}>
+                  <Text style={styles.formName}>Travel Record</Text>
+                  <Text style={styles.cardHint}>Record mileage & photo</Text>
                 </View>
               </TouchableOpacity>
               {assignedForms.map((form) => (
@@ -346,7 +363,9 @@ const styles = StyleSheet.create({
   },
   attendanceCard: {
     borderLeftColor: "#7C3AED",
-    backgroundColor: "#F8F0FC",
+  },
+  travelCard: {
+    borderLeftColor: "#059669",
   },
   formName: {
     fontSize: 14,

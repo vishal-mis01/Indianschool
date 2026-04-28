@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../_cors.php';
 require_once __DIR__ . '/../api_bootstrap.php';
 require_once __DIR__ . '/../config.php'; // db
 require_once __DIR__ . '/../auth.php';   // user/admin check

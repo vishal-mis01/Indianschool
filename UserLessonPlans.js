@@ -28,10 +28,11 @@ export default function UserLessonPlans() {
   const insets = useSafeAreaInsets();
   const isMobile = width < 768;
 
-  const [view, setView] = useState("my-chapters"); // my-chapters | chapter-detail
+  const [view, setView] = useState("subjects"); // subjects | my-chapters | chapter-detail
   const [previousView, setPreviousView] = useState("subjects");
   const [chapterDetail, setChapterDetail] = useState(null);
   const [userChapters, setUserChapters] = useState([]);
+  const [userSubjects, setUserSubjects] = useState([]);
   const [selectedSubject, setSelectedSubject] = useState(null);
   const [selectedChapter, setSelectedChapter] = useState(null);
   const [assignedChapters, setAssignedChapters] = useState([]);
@@ -40,15 +41,15 @@ export default function UserLessonPlans() {
   const [viewContext, setViewContext] = useState("assigned"); // 'assigned'
 
   useEffect(() => {
-    loadAssignedChapters();
+    loadUserSubjects();
   }, []);
 
-  // Load all subtopics when assigned chapters are loaded
+  // Load all subtopics when subject is selected - fetch entire syllabus (not just assigned chapters)
   useEffect(() => {
-    if (assignedChapters.length > 0) {
+    if (selectedSubject) {
       loadAllSubtopics();
     }
-  }, [assignedChapters]);
+  }, [selectedSubject]);
 
   // Refresh sections whenever userChapters changes (after assignment)
   useEffect(() => {
@@ -58,85 +59,108 @@ export default function UserLessonPlans() {
     }
   }, [userChapters, selectedSubject?.class_subject_id]);
 
-  // Function to calculate planned dates based on lecture sequence, skipping holidays and Sundays
+  // Function to calculate planned dates sequentially for chapter subtopics (without holidays for now)
   const calculatePlannedDates = async (chapterData) => {
-    try {
-      // Fetch holidays from API
-      const holidaysResponse = await apiFetch("/admin_get_holidays.php", { method: "GET" });
-      const holidays = holidaysResponse?.holidays || [];
-      const holidayDates = holidays.map(h => h.holiday_date);
+    const holidayDates = [];
 
-      // Helper function to check if date is Sunday or holiday
-      const isInvalidDate = (date) => {
-        const dayOfWeek = date.getDay(); // 0 = Sunday
-        const dateStr = date.toISOString().split('T')[0];
-        return dayOfWeek === 0 || holidayDates.includes(dateStr);
-      };
+    const isInvalidDate = (date) => {
+      const dayOfWeek = date.getDay();
+      const dateStr = date.toISOString().split('T')[0];
+      return dayOfWeek === 0 || holidayDates.includes(dateStr);
+    };
 
-      // Helper function to get next valid date
-      const getNextValidDate = (currentDate) => {
-        const date = new Date(currentDate);
-        do {
-          date.setDate(date.getDate() + 1);
-        } while (isInvalidDate(date));
-        return date;
-      };
+    const getNextValidDate = (currentDate) => {
+      const date = new Date(currentDate);
+      do {
+        date.setDate(date.getDate() + 1);
+      } while (isInvalidDate(date));
+      return date;
+    };
 
-      // Collect all subtopics with their lecture requirements
-      const allSubtopics = [];
-      chapterData.sections?.forEach(section => {
-        section.topics?.forEach(topic => {
-          topic.subtopics?.forEach(subtopic => {
-            if (subtopic.lec_required && subtopic.lec_required > 0) {
-              allSubtopics.push({
-                ...subtopic,
-                topic_name: topic.topic_name,
-                section_name: section.section_name
-              });
-            }
-          });
-        });
-      });
-
-      // Sort by lecture number
-      allSubtopics.sort((a, b) => (a.lec_required || 0) - (b.lec_required || 0));
-
-      // Calculate planned dates starting from today
+    const assignSequentialPlannedDates = (subtopics) => {
       let currentDate = new Date();
-      // Start from next valid date if today is invalid
       if (isInvalidDate(currentDate)) {
         currentDate = getNextValidDate(currentDate);
       }
 
-      const subtopicDateMap = {};
-      allSubtopics.forEach(subtopic => {
+      return subtopics.map(subtopic => {
         const dateStr = currentDate.toISOString().split('T')[0];
-        subtopicDateMap[`${subtopic.topic_name}|||${subtopic.sub_topic}`] = dateStr;
         currentDate = getNextValidDate(currentDate);
+        return {
+          ...subtopic,
+          planned_date: dateStr,
+        };
+      });
+    };
+
+    try {
+      const allSubtopics = [];
+      chapterData.sections?.forEach(section => {
+        section.topics?.forEach(topic => {
+          topic.subtopics?.forEach(subtopic => {
+            allSubtopics.push({
+              ...subtopic,
+              topic_name: topic.topic_name,
+              section_name: section.section_name,
+            });
+          });
+        });
       });
 
-      // Update chapter data with calculated planned dates
+      const datedSubtopics = assignSequentialPlannedDates(allSubtopics);
+      let dateIndex = 0;
+
       const updatedSections = chapterData.sections?.map(section => ({
         ...section,
         topics: section.topics?.map(topic => ({
           ...topic,
           subtopics: topic.subtopics?.map(subtopic => ({
             ...subtopic,
-            planned_date: subtopicDateMap[`${topic.topic_name}|||${subtopic.sub_topic}`] || subtopic.planned_date
-          }))
-        }))
+            planned_date: datedSubtopics[dateIndex++]?.planned_date || subtopic.planned_date,
+          })),
+        })),
       }));
 
       return {
         ...chapterData,
-        sections: updatedSections
+        sections: updatedSections,
       };
-
     } catch (error) {
       console.error("Error calculating planned dates:", error);
-      // Return original data if calculation fails
       return chapterData;
     }
+  };
+
+  const assignSequentialDates = (rows) => {
+    const holidayDates = [];
+
+    const isInvalidDate = (date) => {
+      const dayOfWeek = date.getDay();
+      const dateStr = date.toISOString().split('T')[0];
+      return dayOfWeek === 0 || holidayDates.includes(dateStr);
+    };
+
+    const getNextValidDate = (currentDate) => {
+      const date = new Date(currentDate);
+      do {
+        date.setDate(date.getDate() + 1);
+      } while (isInvalidDate(date));
+      return date;
+    };
+
+    let currentDate = new Date();
+    if (isInvalidDate(currentDate)) {
+      currentDate = getNextValidDate(currentDate);
+    }
+
+    return rows.map(row => {
+      const dateStr = currentDate.toISOString().split('T')[0];
+      currentDate = getNextValidDate(currentDate);
+      return {
+        ...row,
+        planned_date: dateStr,
+      };
+    });
   };
 
 
@@ -194,107 +218,133 @@ export default function UserLessonPlans() {
     }
   };
 
-  const loadAssignedChapters = async () => {
+  const loadUserSubjects = async () => {
     try {
-      console.log("🔄 Loading assigned chapters...");
+      console.log("🔄 Loading user subjects...");
       const data = await apiFetch("/curriculum/get_user_chapters.php", {
         method: "GET",
       });
-      console.log("📖 Assigned chapters API response:", data);
+      console.log("📚 User subjects API response:", data);
+
       if (Array.isArray(data)) {
-        console.log(`✅ Loaded ${data.length} assigned chapters`);
-        // Log each chapter's details for debugging
-        data.forEach((ch, idx) => {
-          console.log(
-            `  [${idx}] Chapter ${ch.chapter_no} (type: ${typeof ch.chapter_no}), class_subject_id: ${ch.class_subject_id} (type: ${typeof ch.class_subject_id}), subject: ${ch.subject_name}`
-          );
+        // Group chapters by subject to create subject cards
+        const subjectsMap = new Map();
+
+        data.forEach(chapter => {
+          const subjectKey = `${chapter.class_subject_id}_${chapter.subject_name}`;
+          if (!subjectsMap.has(subjectKey)) {
+            subjectsMap.set(subjectKey, {
+              class_subject_id: chapter.class_subject_id,
+              subject_id: chapter.subject_id,
+              class_id: chapter.class_id,
+              subject_name: chapter.subject_name,
+              class_name: chapter.class_name,
+              chapters: [],
+              total_subtopics: 0,
+              completed_subtopics: 0,
+            });
+          }
+
+          const subject = subjectsMap.get(subjectKey);
+          subject.chapters.push(chapter);
+          subject.total_subtopics += chapter.total_subtopics || 0;
+          subject.completed_subtopics += chapter.completed_subtopics || 0;
         });
+
+        const subjects = Array.from(subjectsMap.values());
+        console.log(`✅ Loaded ${subjects.length} subjects`);
+        setUserSubjects(subjects);
         setUserChapters(data);
         setAssignedChapters(data);
       } else {
         console.warn("⚠️ API response is not an array:", data);
-        console.warn("Response type:", typeof data);
+        setUserSubjects([]);
         setUserChapters([]);
         setAssignedChapters([]);
       }
     } catch (err) {
-      console.error("❌ Error loading assigned chapters:", err);
-      console.error("Error details:", err.message);
+      console.error("❌ Error loading user subjects:", err);
+      setUserSubjects([]);
       setUserChapters([]);
       setAssignedChapters([]);
     }
   };
 
-  // Load all subtopics from all assigned chapters for the table view
+  const handleSelectSubject = (subject) => {
+    console.log("💾 handleSelectSubject: Selected subject =", subject);
+    setSelectedSubject(subject);
+    setView("my-chapters");
+  };
+
+  // Load all subtopics from selected subject's chapters for the table view
   const loadAllSubtopics = async () => {
+    if (!selectedSubject) {
+      console.warn("No subject selected for loading subtopics");
+      return;
+    }
+
     setLoading(true);
     try {
       const allSubtopicsData = [];
 
-      for (const chapter of assignedChapters) {
-        try {
-          const subject = {
-            class_id: chapter.class_id,
-            subject_id: chapter.subject_id,
-            class_subject_id: chapter.class_subject_id,
-          };
+      // Use the API to fetch entire subject curriculum at once
+      const params = [
+        `class_subject_id=${selectedSubject.class_subject_id}`,
+        `fetch_all=1`
+      ];
 
-          const params = [
-            `class_id=${subject.class_id}`,
-            `subject_id=${subject.subject_id}`,
-            `chapter_no=${chapter.chapter_no}`,
-          ];
-          if (subject.class_subject_id) {
-            params.push(`class_subject_id=${subject.class_subject_id}`);
-          }
+      console.log(`📚 Fetching chapters for class_subject_id: ${selectedSubject.class_subject_id}`);
+      const subjectData = await apiFetch(
+        `/curriculum/get_chapter_progress.php?${params.join("&")}`,
+        { method: "GET" }
+      );
 
-          const chapterData = await apiFetch(
-            `/curriculum/get_chapter_progress.php?${params.join("&")}`,
-            { method: "GET" }
-          );
-
-          if (chapterData && Array.isArray(chapterData.sections)) {
-            // Calculate planned dates for this chapter
-            const dataWithPlannedDates = await calculatePlannedDates(chapterData);
-
-            // Flatten the chapter data into individual subtopic rows
-            dataWithPlannedDates.sections.forEach(section => {
-              section.topics.forEach(topic => {
-                topic.subtopics.forEach(subtopic => {
-                  allSubtopicsData.push({
-                    chapter_name: chapter.chapter_name || `Chapter ${chapter.chapter_no}`,
-                    topic: topic.topic_name,
-                    subtopic: subtopic.sub_topic,
-                    chapter_no: chapter.chapter_no,
-                    activity: subtopic.sub_topic, // Using subtopic as activity for now
-                    planned_date: subtopic.planned_date || '-',
-                    completed_date: subtopic.completed_date || '-',
-                    status: subtopic.status || 'pending',
-                    class_subject_id: chapter.class_subject_id,
-                    chapter_no_ref: chapter.chapter_no,
-                    topic_name: topic.topic_name,
-                    sub_topic: subtopic.sub_topic,
-                  });
-                });
-              });
-            });
-          }
-        } catch (chapterError) {
-          console.error(`Error loading chapter ${chapter.chapter_no}:`, chapterError);
-          // Continue with other chapters
-        }
+      if (!subjectData.chapters || !Array.isArray(subjectData.chapters)) {
+        console.error("❌ Invalid subject data structure:", subjectData);
+        Alert.alert("Error", "Failed to load chapters. Please try again.");
+        setAllSubtopics([]);
+        setLoading(false);
+        return;
       }
 
-      // Sort by planned date to show sequence
-      allSubtopicsData.sort((a, b) => {
-        if (!a.planned_date || a.planned_date === '-') return 1;
-        if (!b.planned_date || b.planned_date === '-') return -1;
-        return new Date(a.planned_date) - new Date(b.planned_date);
+      // Flatten all chapters' subtopics into one array
+      let sequenceCounter = 0;
+      subjectData.chapters.forEach((chapter, chapterIndex) => {
+        chapter.sections.forEach((section, sectionIndex) => {
+          section.topics.forEach((topic, topicIndex) => {
+            topic.subtopics.forEach((subtopic, subtopicIndex) => {
+              allSubtopicsData.push({
+                chapter_name: chapter.chapter_name,
+                topic: topic.topic_name,
+                subtopic: subtopic.sub_topic,
+                chapter_no: chapter.chapter_no,
+                activity: subtopic.sub_topic,
+                planned_date: subtopic.planned_date || '-',
+                completed_date: subtopic.completed_date || '-',
+                status: subtopic.status || 'pending',
+                class_subject_id: selectedSubject.class_subject_id,
+                chapter_no_ref: chapter.chapter_no,
+                topic_name: topic.topic_name,
+                sub_topic: subtopic.sub_topic,
+                section_name: section.section_type,
+                sequence_order: sequenceCounter++,
+                chapter_order: Number(chapter.chapter_no) || 0,
+                section_order: sectionIndex,
+                topic_order: topicIndex,
+                subtopic_order: subtopicIndex,
+              });
+            });
+          });
+        });
       });
 
-      setAllSubtopics(allSubtopicsData);
+      const sequentialSubtopics = assignSequentialDates(allSubtopicsData);
+
+      console.log(`✅ Loaded ${sequentialSubtopics.length} subtopics for subject: ${selectedSubject.subject_name}`);
+      setAllSubtopics(sequentialSubtopics);
     } catch (error) {
-      console.error("Error loading all subtopics:", error);
+      console.error("❌ Error loading all subtopics:", error);
+      Alert.alert("Error", `Failed to load subtopics: ${error.message}`);
       setAllSubtopics([]);
     } finally {
       setLoading(false);
@@ -310,6 +360,17 @@ export default function UserLessonPlans() {
     if (!subtopicData) {
       console.error("Subtopic not found in allSubtopics:", { topicName, subTopicName });
       Alert.alert("Error", "Subtopic data not found");
+      return;
+    }
+
+    console.log("subtopicData:", subtopicData);
+    console.log("class_subject_id:", subtopicData.class_subject_id, "Number:", Number(subtopicData.class_subject_id));
+    console.log("chapter_no_ref:", subtopicData.chapter_no_ref, "Number:", Number(subtopicData.chapter_no_ref));
+
+    // Validate required fields
+    if (!Number(subtopicData.class_subject_id) || !Number(subtopicData.chapter_no_ref)) {
+      console.error("Invalid subtopic data - missing or zero required fields:", subtopicData);
+      Alert.alert("Error", "Invalid subtopic data - class_subject_id or chapter_no is zero or missing");
       return;
     }
 
@@ -355,11 +416,75 @@ export default function UserLessonPlans() {
     }
   };
 
-  const renderMyChaptersView = () => {
+  const renderSubjectCardsView = () => {
     return (
       <View>
         <View style={styles.tabBar}>
-          <Text style={styles.sectionTitle}>Lesson Plan Sequence</Text>
+          <Text style={styles.sectionTitle}>My Subjects</Text>
+        </View>
+
+        {loading ? (
+          <Surface style={styles.emptyState}>
+            <Text style={styles.emptyText}>Loading subjects...</Text>
+          </Surface>
+        ) : userSubjects.length === 0 ? (
+          <Surface style={styles.emptyState}>
+            <Text style={styles.emptyText}>No subjects assigned</Text>
+          </Surface>
+        ) : (
+          <View style={styles.subjectsGrid}>
+            {userSubjects.map((subject, index) => (
+              <TouchableOpacity
+                key={`${subject.class_subject_id}_${index}`}
+                style={styles.subjectCard}
+                onPress={() => handleSelectSubject(subject)}
+              >
+                <Surface style={styles.subjectCardSurface}>
+                  <View style={styles.subjectCardHeader}>
+                    <Text style={styles.subjectName}>{subject.subject_name}</Text>
+                    <Text style={styles.className}>{subject.class_name}</Text>
+                  </View>
+                  <View style={styles.subjectCardStats}>
+                    <Text style={styles.subjectStat}>
+                      {subject.chapters.length} Chapters
+                    </Text>
+                    <Text style={styles.subjectStat}>
+                      {subject.completed_subtopics}/{subject.total_subtopics} Topics
+                    </Text>
+                  </View>
+                  <ProgressBar
+                    progress={
+                      subject.total_subtopics > 0
+                        ? subject.completed_subtopics / subject.total_subtopics
+                        : 0
+                    }
+                    color="#2196F3"
+                    style={styles.subjectProgressBar}
+                  />
+                </Surface>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
+      </View>
+    );
+  };
+
+  const renderMyChaptersView = () => {
+    return (
+      <View>
+        <Button
+          mode="outlined"
+          onPress={() => setView("subjects")}
+          style={styles.backButton}
+          icon="arrow-left"
+        >
+          Back to Subjects
+        </Button>
+        <View style={styles.tabBar}>
+          <Text style={styles.sectionTitle}>
+            {selectedSubject ? `${selectedSubject.subject_name} - Lesson Plan Sequence` : 'Lesson Plan Sequence'}
+          </Text>
         </View>
 
         {loading ? (
@@ -420,6 +545,7 @@ export default function UserLessonPlans() {
     );
   };
 
+  const styles = getStyles(isMobile);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -431,6 +557,7 @@ export default function UserLessonPlans() {
         }}
       >
         <Text style={styles.screenTitle}>My Lesson Plans</Text>
+        {view === "subjects" && renderSubjectCardsView()}
         {view === "my-chapters" && renderMyChaptersView()}
       </ScrollView>
     </SafeAreaView>
@@ -445,7 +572,7 @@ const fontSystem = {
   })
 };
 
-const styles = StyleSheet.create({
+const getStyles = (isMobile) => StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: "#F0F4F8",
@@ -522,9 +649,54 @@ const styles = StyleSheet.create({
     marginHorizontal: 8,
     marginBottom: 12,
   },
+  subjectsGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    paddingHorizontal: 8,
+  },
   subjectCard: {
-    marginHorizontal: 8,
+    width: isMobile ? "100%" : "48%",
+    marginHorizontal: 4,
     marginBottom: 12,
+  },
+  subjectCardSurface: {
+    padding: 16,
+    borderRadius: 12,
+    elevation: 4,
+    backgroundColor: "#FFFFFF",
+    shadowColor: "#1F2937",
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+  },
+  subjectCardHeader: {
+    marginBottom: 12,
+  },
+  subjectName: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#0F172A",
+    marginBottom: 4,
+    ...fontSystem,
+  },
+  className: {
+    fontSize: 14,
+    color: "#64748B",
+    ...fontSystem,
+  },
+  subjectCardStats: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 12,
+  },
+  subjectStat: {
+    fontSize: 12,
+    color: "#475569",
+    fontWeight: "500",
+    ...fontSystem,
+  },
+  subjectProgressBar: {
+    height: 6,
+    borderRadius: 3,
   },
   chapterCard: {
     marginHorizontal: 8,
@@ -944,7 +1116,10 @@ const styles = StyleSheet.create({
     minWidth: 60,
     textAlign: "center",
   },
- 
+  actionCol: {
+    flex: 1,
+    minWidth: 80,
+  },
 });
 
 

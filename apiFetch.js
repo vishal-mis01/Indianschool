@@ -1,9 +1,23 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Platform } from "react-native";
-import { API_BASE } from "./apiConfig";
+import { API_BASE, HOSTINGER_API, LOCAL_API } from "./apiConfig";
+
+async function fetchWithFallback(url, fetchOptions) {
+  try {
+    return await fetch(url, fetchOptions);
+  } catch (error) {
+    // If local proxy is unavailable, fall back to the hosted backend.
+    if (url.startsWith(LOCAL_API)) {
+      const remoteUrl = url.replace(LOCAL_API, HOSTINGER_API);
+      console.warn(`Local API request failed, falling back to hosted API: ${error.message}`);
+      return await fetch(remoteUrl, fetchOptions);
+    }
+    throw error;
+  }
+}
 
 export default async function apiFetch(path, options = {}) {
-  // Use proxy in web development, full URL otherwise
+  // Use configured API base URL
   let url;
   if (path.startsWith("http")) {
     url = path;
@@ -50,7 +64,7 @@ export default async function apiFetch(path, options = {}) {
   if (Platform.OS === 'web') {
     try {
       // First try without CORS mode
-      res = await fetch(url, fetchOptions);
+      res = await fetchWithFallback(url, fetchOptions);
       if (res.ok || res.status !== 0) {
         // If it works or fails for non-CORS reasons, use this response
       } else {
@@ -61,20 +75,13 @@ export default async function apiFetch(path, options = {}) {
       console.log('Web fetch failed, trying with CORS mode:', error.message);
       fetchOptions.mode = "cors";
       fetchOptions.credentials = "omit";
-      res = await fetch(url, fetchOptions);
+      res = await fetchWithFallback(url, fetchOptions);
     }
   } else {
     // For native, use CORS mode
     fetchOptions.mode = "cors";
     fetchOptions.credentials = "omit";
-    res = await fetch(url, fetchOptions);
-  }
-
-  // Process the response
-  try {
-    return await processResponse(res);
-  } finally {
-    clearTimeout(timeoutId);
+    res = await fetchWithFallback(url, fetchOptions);
   }
 
   async function processResponse(res) {
@@ -118,4 +125,11 @@ export default async function apiFetch(path, options = {}) {
     }
     return data;
   }
+
+  // Process the response
+  try {
+    return await processResponse(res);
+  } finally {
+    clearTimeout(timeoutId);
   }
+}

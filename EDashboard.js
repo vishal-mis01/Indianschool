@@ -101,7 +101,7 @@ export default function EDashboard({ user, onLogout }) {
     setLoading(true);
     try {
       const [lessonsRes, tasksRes] = await Promise.all([
-        apiFetch("/get_lessons_taught_today.php"),
+        apiFetch("/get_pending_lessons.php"),
         apiFetch("/get_pending_tasks_today.php"),
       ]);
 
@@ -314,7 +314,7 @@ export default function EDashboard({ user, onLogout }) {
 
       {Object.keys(filteredLessons).length === 0 ? (
         <Surface style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>No assignments for today</Text>
+          <Text style={styles.emptyText}>No pending lessons</Text>
         </Surface>
       ) : (
         <ScrollView>
@@ -330,6 +330,7 @@ export default function EDashboard({ user, onLogout }) {
                     <Text style={[styles.tableCell, styles.tableCellSubtopic, styles.headerCell]}>Subtopic</Text>
                     <Text style={[styles.tableCell, styles.tableCellActivity, styles.headerCell]}>Activity</Text>
                     <Text style={[styles.tableCell, styles.tableCellUser, styles.headerCell]}>User</Text>
+                    <Text style={[styles.tableCell, styles.tableCellPlannedDate, styles.headerCell]}>Planned Date</Text>
                     <Text style={[styles.tableCell, styles.tableCellStatus, styles.headerCell]}>Status</Text>
                   </View>
                   {filteredLessons[className][subjectName].map((item, index) => (
@@ -339,6 +340,7 @@ export default function EDashboard({ user, onLogout }) {
                       <Text style={[styles.tableCell, styles.tableCellSubtopic]}>{item.sub_topic}</Text>
                       <Text style={[styles.tableCell, styles.tableCellActivity]}>{item.activity || '-'}</Text>
                       <Text style={[styles.tableCell, styles.tableCellUser]}>{item.user_name}</Text>
+                      <Text style={[styles.tableCell, styles.tableCellPlannedDate]}>{item.planned_date || '-'}</Text>
                       <View style={[styles.tableCell, styles.tableCellStatus]}>
                         {item.status === 'completed' ? (
                           <Chip icon="check-circle" mode="flat" style={{ backgroundColor: '#4CAF50' }}>
@@ -503,7 +505,7 @@ export default function EDashboard({ user, onLogout }) {
           contentStyle={styles.tabButtonContent}
           labelStyle={styles.tabLabel}
         >
-          Lessons Taught ({totalAssignments})
+          Pending Lessons ({totalAssignments})
         </Button>
         <Button
           mode={activeTab === "pending_tasks" ? "contained" : "text"}
@@ -856,6 +858,7 @@ const styles = StyleSheet.create({
   tableCellSubtopic: { flex: 2 },
   tableCellActivity: { flex: 1.5 },
   tableCellUser: { flex: 1.5 },
+  tableCellPlannedDate: { flex: 1.2 },
   tableCellStatus: { flex: 1 },
 
   headerCell: {

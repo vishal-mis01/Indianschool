@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/_cors.php';
 require "config.php";
 
 header("Content-Type: application/json");
@@ -8,7 +9,8 @@ try {
         $debug = [];
     $user_id = intval($_GET["user_id"] ?? 0);
     $role = $_GET["role"] ?? "user";
-    $debug[] = [ 'user_id' => $user_id, 'role' => $role ];
+    $selected_date = $_GET["date"] ?? date("Y-m-d"); // Allow date parameter, default to today
+    $debug[] = [ 'user_id' => $user_id, 'role' => $role, 'selected_date' => $selected_date ];
     if ($user_id === 0) {
         http_response_code(400);
         echo json_encode([
@@ -18,14 +20,14 @@ try {
         exit;
     }
 
-    $today = date("Y-m-d");
-    $weekday = date("N"); // 1–7
-    $todayDayOfWeek = date("w", strtotime($today)); // 0 = Sunday, 6 = Saturday
-    $todayDateOfMonth = date("d");
-    $todayMonthDay = date("m-d");
-    $currentYear = date("Y");
-    $currentWeek = date("W");
-    $currentMonth = date("Y-m");
+    $today = $selected_date; // Use selected date instead of current date
+    $weekday = date("N", strtotime($selected_date)); // 1–7
+    $todayDayOfWeek = date("w", strtotime($selected_date)); // 0 = Sunday, 6 = Saturday
+    $todayDateOfMonth = date("d", strtotime($selected_date));
+    $todayMonthDay = date("m-d", strtotime($selected_date));
+    $currentYear = date("Y", strtotime($selected_date));
+    $currentWeek = date("W", strtotime($selected_date));
+    $currentMonth = date("Y-m", strtotime($selected_date));
 
     /* user department */
     $dept = null;

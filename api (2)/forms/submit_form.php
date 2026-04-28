@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../_cors.php';
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../auth.php';
 
@@ -72,8 +73,8 @@ try {
 
         $stmt = $pdo->prepare("
             INSERT INTO form_submission_files
-            (submission_id, field_id, file_path)
-            VALUES (?, ?, ?)
+            (submission_id, field_id, file_path, latitude, longitude, accuracy, captured_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
         ");
 
         foreach ($_FILES['files']['name'] as $field_id => $name) {
@@ -90,10 +91,20 @@ try {
                 throw new Exception("File upload failed");
             }
 
+            // Get metadata if available
+            $latitude = $_POST['metadata'][$field_id]['latitude'] ?? null;
+            $longitude = $_POST['metadata'][$field_id]['longitude'] ?? null;
+            $accuracy = $_POST['metadata'][$field_id]['accuracy'] ?? null;
+            $captured_at = $_POST['metadata'][$field_id]['timestamp'] ?? null;
+
             $stmt->execute([
                 $submission_id,
                 (int)$field_id,
-                $relativePath
+                $relativePath,
+                $latitude,
+                $longitude,
+                $accuracy,
+                $captured_at
             ]);
         }
     }

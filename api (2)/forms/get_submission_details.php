@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../_cors.php';
 require_once __DIR__ . '/../config.php';
 
 header("Content-Type: application/json");
@@ -45,10 +46,30 @@ try {
     $stmt->execute([$submission_id]);
     $values = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+    // Get all files for this submission
+    $stmt = $pdo->prepare("
+        SELECT
+            fsf.field_id,
+            fsf.file_path,
+            fsf.latitude,
+            fsf.longitude,
+            fsf.accuracy,
+            fsf.captured_at,
+            ff.label,
+            ff.field_type
+        FROM form_submission_files fsf
+        JOIN form_fields ff ON fsf.field_id = ff.id
+        WHERE fsf.submission_id = ?
+        ORDER BY ff.field_order ASC
+    ");
+    $stmt->execute([$submission_id]);
+    $files = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
     echo json_encode([
         "success" => true,
         "submission" => $submission,
-        "values" => $values
+        "values" => $values,
+        "files" => $files
     ]);
 
 } catch (Exception $e) {

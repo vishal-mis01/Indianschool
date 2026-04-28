@@ -280,7 +280,49 @@ export default function FormResponsesViewer({ formId, onBack }) {
               <Text style={styles.noAnswers}>No answers recorded</Text>
             )}
 
-            {/* EXPORT BUTTON */}
+            {/* FILES */}
+            {submissionDetails.files && submissionDetails.files.length > 0 && (
+              <>
+                <Text style={styles.sectionTitle}>Uploaded Files</Text>
+                {submissionDetails.files.map((file, idx) => (
+                  <Card key={`file-${idx}`} style={styles.fileCard}>
+                    <Card.Content>
+                      <Text style={styles.fileLabel}>{file.label}</Text>
+                      <Text style={styles.fileName}>
+                        {file.file_path.split('/').pop()}
+                      </Text>
+                      {file.latitude && file.longitude && (
+                        <View style={styles.metadataContainer}>
+                          <Text style={styles.metadataText}>
+                            📍 Location: {parseFloat(file.latitude).toFixed(6)}, {parseFloat(file.longitude).toFixed(6)}
+                          </Text>
+                          {file.accuracy && (
+                            <Text style={styles.metadataText}>
+                              🎯 Accuracy: ±{parseFloat(file.accuracy).toFixed(1)}m
+                            </Text>
+                          )}
+                          {file.captured_at && (
+                            <Text style={styles.metadataText}>
+                              🕒 Captured: {new Date(file.captured_at).toLocaleString()}
+                            </Text>
+                          )}
+                        </View>
+                      )}
+                      <Button
+                        mode="outlined"
+                        style={styles.downloadButton}
+                        onPress={() => {
+                          // Open file in new tab/window
+                          window.open(`${apiFetch.defaults.baseURL.replace('/api', '')}/${file.file_path}`, '_blank');
+                        }}
+                      >
+                        View File
+                      </Button>
+                    </Card.Content>
+                  </Card>
+                ))}
+              </>
+            )}
             <Button
               mode="outlined"
               style={styles.exportButton}
@@ -452,6 +494,36 @@ const styles = StyleSheet.create({
     color: "#999",
     textAlign: "center",
     marginVertical: 40,
+  },
+  fileCard: {
+    marginBottom: 15,
+    borderRadius: 8,
+  },
+  fileLabel: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 5,
+  },
+  fileName: {
+    fontSize: 14,
+    color: "#666",
+    marginBottom: 10,
+  },
+  metadataContainer: {
+    backgroundColor: '#F8FAFC',
+    padding: 10,
+    borderRadius: 6,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  metadataText: {
+    fontSize: 12,
+    color: '#475569',
+    marginBottom: 3,
+  },
+  downloadButton: {
+    marginTop: 5,
   },
   exportButton: {
     marginVertical: 20,

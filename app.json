@@ -26,7 +26,7 @@
     },
     "web": {
       "favicon": "./assets/favicon.png",
-      "publicPath": "/assets/",
+      "publicPath": "/",
       "build": {
         "babel": {
           "include": [
@@ -36,8 +36,7 @@
       }
     },
     "assetBundlePatterns": [
-      "**/*",
-      "./node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/*.ttf"
+      "**/*"
     ],
     "extra": {
       "eas": {
